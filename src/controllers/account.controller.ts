@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { RequestWithUser } from '@interfaces/route.interface';
 import { validateRequest } from '@helpers/validateRequest';
 import { AccountService } from '@services/account.service';
-import { AccountIdDto, AccountNumberDto, OpenAccountDto } from '@dtos/account.dto';
+import { AccountIdDto, AccountNumberDto, DepositOrWithdrawFundsDto, OpenAccountDto } from '@dtos/account.dto';
 
 const accountService: AccountService = new AccountService();
 
@@ -76,4 +76,35 @@ export class AccountController {
             next(error)
         }
     };
+
+    public async getAccountBalance(req: RequestWithUser, res: Response, next: NextFunction) {
+        try {
+
+            const { accountNumber } = await validateRequest(AccountNumberDto, req.body);
+
+            const { id } = req.user;
+
+            const responseData = await accountService.checkAccountBalance(accountNumber, id);
+
+            res.status(200).json(responseData);
+
+        } catch (error) {
+            next(error)
+        }
+    };
+
+    public async depositFunds(req: Request, res: Response, next: NextFunction) {
+        try {
+
+            const depositFundsDto = await validateRequest(DepositOrWithdrawFundsDto, req.body);
+
+            const responseData = await accountService.depositFunds(depositFundsDto)
+
+            res.status(200).json(responseData);
+
+        } catch (error) {
+            next(error)
+        }
+    }
+
 }

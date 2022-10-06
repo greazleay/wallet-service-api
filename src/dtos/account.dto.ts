@@ -29,3 +29,18 @@ export class AccountNumberDto {
     @Max(9999999999)
     readonly accountNumber: number;
 };
+
+export class DepositOrWithdrawFundsDto extends AccountNumberDto {
+
+    @IsNotEmpty()
+    @IsString()
+    accountName: string
+
+    @IsInt()
+    @Min(1, { message: 'Transaction Amount must be greater than Zero' })
+    transactionAmount: number;
+
+    @IsString()
+    @Length(1)
+    transactionParty: string;
+}

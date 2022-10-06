@@ -1,9 +1,10 @@
-import { accountRepository } from "@/data-source";
-import { OpenAccountDto } from "@dtos/account.dto";
-import { Account } from "@entities/account.entity";
-import { User } from "@entities/user.entity";
-import { NotFoundException } from "@exceptions/common.exceptions";
-import { SuccessResponse } from "@helpers/successResponse";
+import { accountRepository, entityManager } from '@/data-source';
+import { Transaction } from '@entities/transaction.entity';
+import { DepositOrWithdrawFundsDto, OpenAccountDto } from '@dtos/account.dto';
+import { Account } from '@entities/account.entity';
+import { User } from '@entities/user.entity';
+import { ConflictException, ForbiddenException, NotFoundException } from '@exceptions/common.exceptions';
+import { SuccessResponse } from '@helpers/successResponse';
 
 
 export class AccountService {
@@ -50,7 +51,13 @@ export class AccountService {
 
     public async findOneByAccountNumber(accountNumber: number): Promise<SuccessResponse> {
 
-        const account = await this.accountRepo.findOneBy({ accountNumber });
+        const account = await this.accountRepo.findOne({
+            where: { accountNumber },
+            relations: {
+                debitTransactions: true,
+                creditTransactions: true
+            }
+        },);
 
         if (account) {
 
@@ -102,6 +109,62 @@ export class AccountService {
 
         await this.accountRepo.save(newAccount);
 
-        return new SuccessResponse(201, 'Account Created Successfully', newAccount)
+        return new SuccessResponse(201, 'Account Created Successfully', newAccount);
+    }
+
+    public async checkAccountBalance(accountNumber: number, userId: string) {
+
+        const account = await this.accountRepo.findOne({
+            where: {
+                accountNumber,
+                accountHolder: {
+                    id: userId
+                }
+            }
+        });
+
+        if (account) {
+
+            return new SuccessResponse(200, `Balance on account ${accountNumber}`, account.accountBalance)
+
+        } else {
+
+            throw new ForbiddenException(`Invalid user/account number combination`);
+        }
+    };
+
+    async depositFunds(transactionInfo: DepositOrWithdrawFundsDto) {
+
+        const { accountNumber, accountName, transactionAmount, transactionParty } = transactionInfo;
+
+        // Search for account and add transaction amout to account balance
+        const account = await this.accountRepo.findOne({
+            where: {
+                accountNumber,
+                accountName
+            }
+        });
+
+        if (account) {
+
+            // Credit the Respective Account
+            account.accountBalance = +account.accountBalance + transactionAmount;
+
+            // Prepare and create transaction record
+            const newTransaction = new Transaction();
+
+            await newTransaction.generateDepositTransaction(account, transactionAmount, transactionParty)
+
+            await entityManager.transaction(async transactionalEntityManager => {
+                await transactionalEntityManager.save(account)
+                await transactionalEntityManager.save(newTransaction)
+            });
+
+            return new SuccessResponse(200, 'Deposit Successful', { reference: newTransaction.transactionRef });
+
+        } else {
+
+            throw new ConflictException(`Invalid Account name/number combinations`);
+        }
     }
 }

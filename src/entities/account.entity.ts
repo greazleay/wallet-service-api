@@ -1,4 +1,4 @@
-import { Entity, Column, OneToMany, ManyToMany, JoinTable, ManyToOne } from 'typeorm';
+import { Entity, Column, OneToMany, ManyToOne } from 'typeorm';
 import { AbstractEntity } from '@entities/abstract.entity';
 import { User } from '@entities/user.entity';
 import { Transaction } from '@entities/transaction.entity';
@@ -19,8 +19,11 @@ export class Account extends AbstractEntity {
     @ManyToOne(() => User, user => user.accounts)
     accountHolder: User
 
-    @OneToMany(() => Transaction, (transactions) => transactions.fromAccount)
-    transactions: Transaction[];
+    @OneToMany(() => Transaction, (transactions) => transactions.creditAccount)
+    creditTransactions: Transaction[];
+
+    @OneToMany(() => Transaction, (transactions) => transactions.debitAccount)
+    debitTransactions: Transaction[];
 
     public async generateAccountNumber(accountNumbers: number[]): Promise<number> {
 

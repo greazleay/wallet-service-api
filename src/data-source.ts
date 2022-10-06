@@ -20,6 +20,7 @@ export const AppDataSource = new DataSource({
     }
 });
 
+export const entityManager = AppDataSource.manager;
 export const accountRepository = AppDataSource.getRepository(Account);
 export const transactionRepository = AppDataSource.getRepository(Transaction);
 export const userRepository = AppDataSource.getRepository(User);

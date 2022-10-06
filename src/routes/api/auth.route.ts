@@ -13,7 +13,10 @@ export class AuthRouter {
 
     private registerRoutes() {
 
-        this.router.post('/login', this.authController.loginUser)
+        this.router.post(
+            '/login',
+            this.authController.loginUser
+        );
 
     };
 

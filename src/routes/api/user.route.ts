@@ -15,9 +15,21 @@ export class UserRouter {
 
     private registerRoutes() {
 
-        this.router.post('/register', this.userController.createUser);
-        this.router.get('/', this.userController.getAllUsers);
-        this.router.get('/userinfo', passport.authenticate('jwt', { session: false }), this.userController.getCurrentUser);
+        this.router.post(
+            '/register',
+            this.userController.createUser
+        );
+
+        this.router.get(
+            '/',
+            this.userController.getAllUsers
+        );
+
+        this.router.get(
+            '/userinfo',
+            passport.authenticate('jwt', { session: false }),
+            this.userController.getCurrentUser
+        );
 
     };
 

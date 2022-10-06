@@ -24,11 +24,11 @@ export class Transaction extends AbstractEntity {
   @Column('enum', { enum: TransactionStatus, default: TransactionStatus.SUCCESSFUL })
   transactionStatus!: TransactionStatus;
 
-  @ManyToOne(() => Account, (account) => account.transactions, { nullable: true })
-  fromAccount!: Account;
+  @ManyToOne(() => Account, (account) => account.debitTransactions, { nullable: true })
+  debitAccount!: Account;
 
-  @ManyToOne(() => Account, (account) => account.transactions, { nullable: true })
-  toAccount!: Account;
+  @ManyToOne(() => Account, (account) => account.creditTransactions, { nullable: true })
+  creditAccount!: Account;
 
   @Column('decimal', { precision: 15, scale: 2, default: 0 })
   accountBalance!: number;
@@ -39,6 +39,18 @@ export class Transaction extends AbstractEntity {
   @BeforeInsert()
   addTransactionRef() {
     this.transactionRef = `${this.transactionType}-${this.transactionMode}-${this.transactionDate.getTime()}`;
+  }
+
+  public async generateDepositTransaction(account: Account, transactionAmount: number, transactionParty: string) {
+
+    this.transactionDate = new Date()
+    this.description = `Deposit of ${transactionAmount} made by ${transactionParty}`;
+    this.transactionAmount = transactionAmount;
+    this.transactionMode = TransactionMode.CREDIT;
+    this.transactionType = TransactionType.FUNDS_DEPOSIT;
+    this.transactionStatus = TransactionStatus.SUCCESSFUL;
+    this.creditAccount = account;
+    this.accountBalance = account.accountBalance;
   }
 
 }
