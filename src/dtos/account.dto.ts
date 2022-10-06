@@ -1,4 +1,4 @@
-import { IsString, Length, IsUUID, IsInt, Min, IsNotEmpty, Max } from 'class-validator';
+import { IsString, Length, IsUUID, IsInt, Min, IsNotEmpty, Max, MinLength } from 'class-validator';
 
 
 export class OpenAccountDto {
@@ -43,4 +43,28 @@ export class DepositOrWithdrawFundsDto extends AccountNumberDto {
     @IsString()
     @Length(1)
     transactionParty: string;
+};
+
+export class TransferFundsDto {
+
+    @IsNotEmpty()
+    @IsInt()
+    @Min(1, { message: 'Transaction Amount must be greater than Zero' })
+    transferAmount: number;
+
+    @IsNotEmpty()
+    @IsInt()
+    @Min(1000000000)
+    @Max(9999999999)
+    debitAccountNumber: number;
+
+    @IsNotEmpty()
+    @IsInt()
+    @Min(1000000000)
+    @Max(9999999999)
+    creditAccountNumber: number;
+
+    @IsString()
+    @MinLength(1, { message: 'Transfer Account Name length must be greater than Zero' })
+    creditAccountName: string;
 }

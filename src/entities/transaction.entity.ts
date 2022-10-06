@@ -53,4 +53,46 @@ export class Transaction extends AbstractEntity {
     this.accountBalance = account.accountBalance;
   }
 
+  public async generateWithdrawalTransaction(account: Account, transactionAmount: number, transactionParty: string) {
+
+    this.transactionDate = new Date()
+    this.description = `Cash Withdrawal of ${transactionAmount} made by ${transactionParty}`
+    this.transactionAmount = transactionAmount;
+    this.transactionMode = TransactionMode.DEBIT;
+    this.transactionType = TransactionType.FUNDS_WITHDRAWAL;
+    this.transactionStatus = TransactionStatus.SUCCESSFUL;
+    this.debitAccount = account;
+    this.accountBalance = account.accountBalance;
+  }
+
+  public async generateFundsTransferTransaction(
+    debitAccount: Account,
+    creditAccount: Account,
+    transactionAmount: number,
+    isDebit: boolean
+  ) {
+
+    const {
+      accountBalance: debitAccountBalance,
+      accountName: debitAccountName,
+      accountNumber: debitAccountNumber
+    } = debitAccount;
+
+    const {
+      accountBalance: creditAccountBalance,
+      accountName: creditAccountName,
+      accountNumber: creditAccountNumber
+    } = creditAccount;
+
+    this.transactionDate = new Date();
+    this.description = `Funds transfer of ${transactionAmount} from ${debitAccountNumber} - ${debitAccountName} to ${creditAccountNumber} - ${creditAccountName}`;
+    this.transactionAmount = transactionAmount;
+    this.transactionMode = isDebit ? TransactionMode.DEBIT : TransactionMode.CREDIT;
+    this.transactionType = TransactionType.FUNDS_TRANSFER;
+    this.transactionStatus = TransactionStatus.SUCCESSFUL;
+    this.debitAccount = debitAccount;
+    this.creditAccount = creditAccount;
+    this.accountBalance = isDebit ? debitAccountBalance : creditAccountBalance;
+  }
+
 }

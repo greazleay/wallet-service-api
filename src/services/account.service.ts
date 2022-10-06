@@ -1,6 +1,6 @@
 import { accountRepository, entityManager } from '@/data-source';
 import { Transaction } from '@entities/transaction.entity';
-import { DepositOrWithdrawFundsDto, OpenAccountDto } from '@dtos/account.dto';
+import { DepositOrWithdrawFundsDto, OpenAccountDto, TransferFundsDto } from '@dtos/account.dto';
 import { Account } from '@entities/account.entity';
 import { User } from '@entities/user.entity';
 import { ConflictException, ForbiddenException, NotFoundException } from '@exceptions/common.exceptions';
@@ -138,25 +138,25 @@ export class AccountService {
         const { accountNumber, accountName, transactionAmount, transactionParty } = transactionInfo;
 
         // Search for account and add transaction amout to account balance
-        const account = await this.accountRepo.findOne({
+        const creditAccount = await this.accountRepo.findOne({
             where: {
                 accountNumber,
                 accountName
             }
         });
 
-        if (account) {
+        if (creditAccount) {
 
             // Credit the Respective Account
-            account.accountBalance = +account.accountBalance + transactionAmount;
+            creditAccount.accountBalance = +creditAccount.accountBalance + transactionAmount;
 
             // Prepare and create transaction record
             const newTransaction = new Transaction();
 
-            await newTransaction.generateDepositTransaction(account, transactionAmount, transactionParty)
+            await newTransaction.generateDepositTransaction(creditAccount, transactionAmount, transactionParty)
 
             await entityManager.transaction(async transactionalEntityManager => {
-                await transactionalEntityManager.save(account)
+                await transactionalEntityManager.save(creditAccount)
                 await transactionalEntityManager.save(newTransaction)
             });
 
@@ -166,5 +166,104 @@ export class AccountService {
 
             throw new ConflictException(`Invalid Account name/number combinations`);
         }
+    }
+
+    async withdrawFunds(transactionInfo: DepositOrWithdrawFundsDto) {
+
+        const { accountNumber, accountName, transactionAmount, transactionParty } = transactionInfo;
+
+        // Check if the account exists and account name/number matches
+        const debitAccount = await this.accountRepo.findOne({
+            where: {
+                accountNumber,
+                accountName
+            }
+        });
+
+        if (debitAccount) {
+
+            if (debitAccount.accountBalance < transactionAmount) {
+                throw new ForbiddenException(`Unable to process transaction, Insufficient funds`)
+            }
+
+            // Deduct the transaction amount from the debit account
+            debitAccount.accountBalance = +debitAccount.accountBalance - transactionAmount;
+
+            // Prepare and create transaction record
+            const newTransaction = new Transaction();
+
+            await newTransaction.generateWithdrawalTransaction(debitAccount, transactionAmount, transactionParty)
+
+            await entityManager.transaction(async transactionalEntityManager => {
+                await transactionalEntityManager.save(debitAccount)
+                await transactionalEntityManager.save(newTransaction)
+            });
+
+            return new SuccessResponse(200, 'Withdrawal Successful', { reference: newTransaction.transactionRef });
+
+        } else {
+
+            throw new ConflictException(`Invalid Account name/number combinations`);
+        }
+    };
+
+    async transferFunds(transferFundsDto: TransferFundsDto, user: User) {
+
+        const { creditAccountName, creditAccountNumber, debitAccountNumber, transferAmount } = transferFundsDto;
+
+        // Search for Both Accounts
+        const debitAccount = await this.accountRepo.findOne({
+            where: {
+                accountNumber: debitAccountNumber,
+                accountHolder: {
+                    id: user.id
+                }
+            }
+        });
+
+        const creditAccount = await this.accountRepo.findOne({
+            where: {
+                accountNumber: debitAccountNumber,
+                accountName: creditAccountName
+            }
+        });
+
+        if (creditAccount && debitAccount) {
+
+            if (debitAccount.accountBalance < transferAmount) {
+                throw new ForbiddenException(`Unable to process transaction, Insufficient funds`)
+            };
+
+            if (creditAccount.accountNumber === debitAccount.accountNumber) {
+                throw new ConflictException('You cannot make transfers between the same account')
+            };
+
+            // Debit and Credit Respective Accounts
+            debitAccount.accountBalance = +debitAccount.accountBalance - transferAmount;
+            creditAccount.accountBalance = +creditAccount.accountBalance + transferAmount;
+
+            // Generate Credit and Debit Transaction for both Accounts
+            const newDebitTransaction = new Transaction();
+            const newCreditTransaction = new Transaction();
+
+            await newDebitTransaction.generateFundsTransferTransaction(debitAccount, creditAccount, transferAmount, true)
+            await newCreditTransaction.generateFundsTransferTransaction(debitAccount, creditAccount, transferAmount, false)
+
+            await entityManager.transaction(async transactionalEntityManager => {
+                await transactionalEntityManager.save(debitAccount);
+                await transactionalEntityManager.save(creditAccount);
+                await transactionalEntityManager.save(newDebitTransaction);
+                await transactionalEntityManager.save(newCreditTransaction);
+            });
+
+            return new SuccessResponse(200, 'Funds Transfer Successful', { reference: newDebitTransaction.transactionRef });
+
+
+        } else {
+
+            throw new ConflictException(`Invalid Account name/number combinations`);
+
+        }
+
     }
 }
