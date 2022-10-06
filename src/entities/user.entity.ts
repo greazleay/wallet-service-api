@@ -1,8 +1,10 @@
 import { Entity, Column, BeforeInsert, OneToMany } from 'typeorm';
 import { compare, hash } from 'bcrypt';
 import { Exclude } from 'class-transformer';
+import { sign } from 'jsonwebtoken';
 import { AbstractEntity } from '@entities/abstract.entity';
 import { Account } from '@entities/account.entity';
+import { ENV } from '@config/configuration';
 
 
 @Entity()
@@ -38,6 +40,20 @@ export class User extends AbstractEntity {
 
     public async isPasswordValid(password: string): Promise<boolean> {
         return await compare(password, this.password);
+    }
+
+    public async generateToken() {
+
+        const payload = {
+            aud: "lendsqr-task",
+            iss: "lendsqr-task",
+            sub: this.id,
+            name: this.fullName,
+            email: this.email,
+            lastLogin: this.lastLogin,
+        };
+
+        return sign(payload, ENV.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
     }
 
 }

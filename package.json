@@ -7,7 +7,6 @@
   "private": true,
   "license": "MIT",
   "dependencies": {
-    "@tsconfig/node16": "^1.0.2",
     "@types/bcrypt": "^5.0.0",
     "@types/compression": "^1.7.2",
     "@types/cookie-parser": "^1.4.2",
@@ -42,11 +41,13 @@
     "passport-jwt": "^4.0.0",
     "ts-node": "^10.9.1",
     "tsc-alias": "^1.6.11",
-    "tsconfig-paths": "^4.0.0",
+    "tsconfig-paths": "^4.1.0",
     "tslib": "^2.4.0",
+    "typeorm": "^0.3.10",
     "typescript": "^4.8.2"
   },
   "devDependencies": {
+    "@tsconfig/node16": "^1.0.3",
     "@types/jest": "^28.1.6",
     "@types/supertest": "^2.0.12",
     "jest": "^28.1.3",

@@ -1,6 +1,6 @@
 import { Column, Entity, ManyToOne, BeforeInsert } from 'typeorm';
 import { AbstractEntity } from '@entities/abstract.entity';
-import { Account } from '@src/entities/account.entity';
+import { Account } from '@entities/account.entity';
 import { TransactionMode, TransactionType, TransactionStatus } from '@interfaces/transaction.interface';
 
 @Entity()

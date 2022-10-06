@@ -1,5 +1,5 @@
 import express, {
-    Express,
+    Application,
     NextFunction,
     Request,
     Response
@@ -24,11 +24,9 @@ import { IndexRouter } from '@routes/index.route';
 
 export class App {
 
-    private app: Express;
+    private readonly app: Application = express();
 
     constructor() {
-
-        this.app = express();
 
         // Load Passport configuration
         passportConfig(passport);
