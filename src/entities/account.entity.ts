@@ -1,4 +1,4 @@
-import { Entity, Column, OneToMany, ManyToMany, JoinTable } from 'typeorm';
+import { Entity, Column, OneToMany, ManyToMany, JoinTable, ManyToOne } from 'typeorm';
 import { AbstractEntity } from '@entities/abstract.entity';
 import { User } from '@entities/user.entity';
 import { Transaction } from '@entities/transaction.entity';
@@ -8,18 +8,28 @@ import { Transaction } from '@entities/transaction.entity';
 export class Account extends AbstractEntity {
 
     @Column('varchar')
-    accountName!: string
+    accountName: string
 
     @Column('int', { unique: true })
-    accountNumber!: number;
+    accountNumber: number;
 
     @Column('decimal', { precision: 15, scale: 2, default: 0 })
-    accountBalance!: number;
+    accountBalance: number;
 
-    @ManyToMany(() => User, user => user.accounts)
-    @JoinTable()
-    accountHolder!: User[]
+    @ManyToOne(() => User, user => user.accounts)
+    accountHolder: User
 
     @OneToMany(() => Transaction, (transactions) => transactions.fromAccount)
-    transactions!: Transaction[];
+    transactions: Transaction[];
+
+    public async generateAccountNumber(accountNumbers: number[]): Promise<number> {
+
+        let accoutNumber: number = 1000000000 + Math.floor(Math.random() * 1000000000);
+
+        while (accountNumbers.indexOf(accoutNumber) !== -1) {
+            accoutNumber = 1000000000 + Math.floor(Math.random() * 1000000000);
+        }
+
+        return accoutNumber;
+    };
 }

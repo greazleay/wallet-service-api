@@ -7,7 +7,7 @@ export class AuthService {
 
     private readonly userRepo: typeof userRepository = userRepository;
 
-    public async login(loginUserDto: LoginUserDto) {
+    public async login(loginUserDto: LoginUserDto): Promise<SuccessResponse> {
 
         const { email, password } = loginUserDto;
 

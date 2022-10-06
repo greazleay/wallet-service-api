@@ -17,14 +17,14 @@ export const validateRequest = async (dto: ClassConstructor<any>, sourceData: an
 
     if (errors.length) {
 
-        const error = errors.map(err => {
+        const errorData = errors.map(err => {
             return {
                 property: err.property,
                 error: err.constraints
             }
         });
 
-        throw new ValidationException(error)
+        throw new ValidationException(errorData);
 
     } else {
 

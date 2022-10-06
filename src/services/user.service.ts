@@ -24,7 +24,7 @@ export class UserService {
 
     }
 
-    public async findAll() {
+    public async findAll(): Promise<SuccessResponse> {
 
         const allUsers = await this.userRepo.find({
             select: {
