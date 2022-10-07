@@ -1,4 +1,14 @@
-import { IsString, Length, IsUUID, IsInt, Min, IsNotEmpty, Max, MinLength } from 'class-validator';
+import { Transform } from 'class-transformer';
+import {
+    IsInt,
+    IsNotEmpty,
+    IsString,
+    IsUUID,
+    Length,
+    Min,
+    Max,
+    MinLength
+} from 'class-validator';
 
 
 export class OpenAccountDto {
@@ -6,12 +16,8 @@ export class OpenAccountDto {
     @IsNotEmpty()
     @IsString()
     @Length(3)
+    @Transform(({ value }) => value.toUppercase())
     accountName: string;
-
-    @IsNotEmpty()
-    @IsInt()
-    @Min(1, { message: 'Opening Balance must be greater than zero' })
-    openingBalance: number;
 
 };
 
@@ -30,11 +36,7 @@ export class AccountNumberDto {
     readonly accountNumber: number;
 };
 
-export class DepositOrWithdrawFundsDto extends AccountNumberDto {
-
-    @IsNotEmpty()
-    @IsString()
-    accountName: string
+export class WithdrawFundsDto extends AccountNumberDto {
 
     @IsInt()
     @Min(1, { message: 'Transaction Amount must be greater than Zero' })
@@ -44,6 +46,13 @@ export class DepositOrWithdrawFundsDto extends AccountNumberDto {
     @Length(1)
     transactionParty: string;
 };
+
+export class DepositFundsDto extends WithdrawFundsDto {
+
+    @IsNotEmpty()
+    @IsString()
+    accountName: string
+}
 
 export class TransferFundsDto {
 

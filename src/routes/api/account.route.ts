@@ -27,6 +27,22 @@ export class AccountRouter {
             this.accountController.depositFunds
         );
 
+        this.router.post(
+            '/withdraw-funds',
+            passport.authenticate('jwt', { session: false }),
+            this.accountController.withdrawFunds
+        );
+
+        this.router.post(
+            '/transfer-funds',
+            passport.authenticate('jwt', { session: false }),
+            this.accountController.transferFunds
+        );
+
+        /**
+         * THIS ROUTE RETURNS ALL ACCOUNTS ON THE SERVER
+         * PLEASE NOTE THAT THE ROUTE LEFT IS OPEN DELIBERATELY WITHOUT AUTHORIZATION FOR THE PURPOSE OF THIS TASK
+         */
         this.router.get(
             '/',
             passport.authenticate('jwt', { session: false }),

@@ -15,6 +15,11 @@ export class TransactionRouter {
 
     private registerRoutes() {
 
+        
+        /**
+         * THIS ROUTE RETURNS ALL TRANSACTIONS ON THE SERVER
+         * PLEASE NOTE THAT THE ROUTE LEFT IS OPEN DELIBERATELY WITHOUT AUTHORIZATION FOR THE PURPOSE OF THIS TASK
+         */
         this.router.get(
             '/',
             passport.authenticate('jwt', { session: false }),

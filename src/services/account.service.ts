@@ -1,6 +1,11 @@
 import { accountRepository, entityManager } from '@/data-source';
 import { Transaction } from '@entities/transaction.entity';
-import { DepositOrWithdrawFundsDto, OpenAccountDto, TransferFundsDto } from '@dtos/account.dto';
+import {
+    DepositFundsDto,
+    OpenAccountDto,
+    TransferFundsDto,
+    WithdrawFundsDto
+} from '@dtos/account.dto';
 import { Account } from '@entities/account.entity';
 import { User } from '@entities/user.entity';
 import { ConflictException, ForbiddenException, NotFoundException } from '@exceptions/common.exceptions';
@@ -16,8 +21,8 @@ export class AccountService {
 
         const allAccounts = await this.accountRepo.find({
             select: {
-                accountName: true,
                 accountNumber: true,
+                accountName: true,
                 accountBalance: true,
                 createdAt: true
             }
@@ -96,15 +101,18 @@ export class AccountService {
 
     public async openNewAccount(openAccountDto: OpenAccountDto, user: User) {
 
-        const { accountName, openingBalance } = openAccountDto;
+        const { accountName } = openAccountDto;
 
-        const allAccounts = (await this.accountRepo.find()).map(account => account.accountNumber);
+        const allAccountNumbers = (await this.accountRepo.find({
+            select: {
+                accountNumber: true,
+            }
+        })).map(account => account.accountNumber);
 
         const newAccount = new Account();
 
         newAccount.accountName = accountName;
-        newAccount.accountNumber = await newAccount.generateAccountNumber(allAccounts);
-        newAccount.accountBalance = openingBalance;
+        newAccount.accountNumber = await newAccount.generateAccountNumber(allAccountNumbers);
         newAccount.accountHolder = user
 
         await this.accountRepo.save(newAccount);
@@ -120,6 +128,9 @@ export class AccountService {
                 accountHolder: {
                     id: userId
                 }
+            },
+            select: {
+                accountBalance: true
             }
         });
 
@@ -133,9 +144,9 @@ export class AccountService {
         }
     };
 
-    async depositFunds(transactionInfo: DepositOrWithdrawFundsDto) {
+    async depositFunds(despositFundsDto: DepositFundsDto) {
 
-        const { accountNumber, accountName, transactionAmount, transactionParty } = transactionInfo;
+        const { accountNumber, accountName, transactionAmount, transactionParty } = despositFundsDto;
 
         // Search for account and add transaction amout to account balance
         const creditAccount = await this.accountRepo.findOne({
@@ -168,15 +179,17 @@ export class AccountService {
         }
     }
 
-    async withdrawFunds(transactionInfo: DepositOrWithdrawFundsDto) {
+    async withdrawFunds(withdrawFundsDto: WithdrawFundsDto, userID: string) {
 
-        const { accountNumber, accountName, transactionAmount, transactionParty } = transactionInfo;
+        const { accountNumber, transactionAmount, transactionParty } = withdrawFundsDto;
 
-        // Check if the account exists and account name/number matches
+        // Check if the account exists and the account belongs to the user making the withdrawal
         const debitAccount = await this.accountRepo.findOne({
             where: {
                 accountNumber,
-                accountName
+                accountHolder: {
+                    id: userID
+                }
             }
         });
 
@@ -207,7 +220,7 @@ export class AccountService {
         }
     };
 
-    async transferFunds(transferFundsDto: TransferFundsDto, user: User) {
+    async transferFunds(transferFundsDto: TransferFundsDto, userID: string) {
 
         const { creditAccountName, creditAccountNumber, debitAccountNumber, transferAmount } = transferFundsDto;
 
@@ -216,7 +229,7 @@ export class AccountService {
             where: {
                 accountNumber: debitAccountNumber,
                 accountHolder: {
-                    id: user.id
+                    id: userID
                 }
             }
         });
@@ -228,6 +241,7 @@ export class AccountService {
             }
         });
 
+        // If Both Accounts Exist
         if (creditAccount && debitAccount) {
 
             if (debitAccount.accountBalance < transferAmount) {
@@ -235,7 +249,7 @@ export class AccountService {
             };
 
             if (creditAccount.accountNumber === debitAccount.accountNumber) {
-                throw new ConflictException('You cannot make transfers between the same account')
+                throw new ForbiddenException('You cannot make transfers between the same account')
             };
 
             // Debit and Credit Respective Accounts

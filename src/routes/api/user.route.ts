@@ -20,8 +20,13 @@ export class UserRouter {
             this.userController.createUser
         );
 
+        /**
+         * THIS ROUTE RETURNS ALL USERS ON THE SERVER
+         * PLEASE NOTE THAT THE ROUTE LEFT IS OPEN DELIBERATELY WITHOUT AUTHORIZATION FOR THE PURPOSE OF THIS TASK
+         */
         this.router.get(
             '/',
+            passport.authenticate('jwt', { session: false }),
             this.userController.getAllUsers
         );
 
