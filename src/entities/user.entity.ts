@@ -15,23 +15,23 @@ export class User extends AbstractEntity {
         nullable: false,
         unique: true
     })
-    email!: string;
+    email: string;
 
     @Exclude()
     @Column('varchar', {
         length: 255,
         nullable: false
     })
-    password!: string;
+    password: string;
 
     @Column('varchar')
-    fullName!: string;
+    fullName: string;
 
     @Column('datetime', { nullable: true })
-    lastLogin!: Date;
+    lastLogin: Date;
 
     @OneToMany(() => Account, account => account.accountHolder)
-    accounts!: Account[];
+    accounts: Account[];
 
     @BeforeInsert()
     async hashPassword() {

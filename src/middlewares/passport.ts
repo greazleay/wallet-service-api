@@ -20,10 +20,14 @@ export const passportConfig = (passport: { use: (arg0: JwtStrategy) => void; }) 
 
             const { sub } = jwt_payload
 
-            const userExists = await userRepository.createQueryBuilder('user')
-                .where('user.id = :sub', { sub })
-                .select(['user.id', 'user.email', 'user.fullName'])
-                .getOne();
+            const userExists = await userRepository.findOne({
+                select: {
+                    email: true,
+                    fullName: true,
+                    lastLogin: true
+                },
+                where: { id: sub }
+            });
 
             return userExists ? done(null, userExists) : done(null, false)
 

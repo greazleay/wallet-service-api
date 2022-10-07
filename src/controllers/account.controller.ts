@@ -58,12 +58,14 @@ export class AccountController {
         }
     };
 
-    public getOneByAccountNumber = async (req: Request, res: Response, next: NextFunction) => {
+    public getOneByAccountNumber = async (req: RequestWithUser, res: Response, next: NextFunction) => {
         try {
+
+            const { id } = req.user
 
             const { accountNumber } = await validateRequest(AccountNumberDto, req.body);
 
-            const responseData = await this.accountService.findOneByAccountNumber(accountNumber)
+            const responseData = await this.accountService.findOneByAccountNumber(accountNumber, id)
 
             res.status(200).json(responseData)
 

@@ -54,15 +54,20 @@ export class AccountService {
 
     }
 
-    public async findOneByAccountNumber(accountNumber: number): Promise<SuccessResponse> {
+    public async findOneByAccountNumber(accountNumber: number, userID: string): Promise<SuccessResponse> {
 
         const account = await this.accountRepo.findOne({
-            where: { accountNumber },
             relations: {
                 debitTransactions: true,
                 creditTransactions: true
-            }
-        },);
+            },
+            where: {
+                accountNumber,
+                accountHolder: {
+                    id: userID
+                }
+            },
+        });
 
         if (account) {
 
@@ -70,7 +75,7 @@ export class AccountService {
 
         } else {
 
-            throw new NotFoundException(`Account with Account Number: ${accountNumber} not found on this server`)
+            throw new ForbiddenException(`Invalid Account Number`)
         }
 
     }
@@ -120,19 +125,15 @@ export class AccountService {
         return new SuccessResponse(201, 'Account Created Successfully', newAccount);
     }
 
-    public async checkAccountBalance(accountNumber: number, userId: string) {
+    public async checkAccountBalance(accountNumber: number, userID: string) {
 
-        const account = await this.accountRepo.findOne({
-            where: {
-                accountNumber,
-                accountHolder: {
-                    id: userId
-                }
-            },
-            select: {
-                accountBalance: true
-            }
-        });
+        const account = await this.accountRepo
+            .createQueryBuilder('account')
+            .leftJoinAndSelect('account.accountHolder', 'accountHolder')
+            .where('account.accountNumber = :accountNumber', { accountNumber })
+            .andWhere('accountHolder.id = :userID', { userID })
+            .select(['account.accountBalance'])
+            .getOne();
 
         if (account) {
 
@@ -140,7 +141,7 @@ export class AccountService {
 
         } else {
 
-            throw new ForbiddenException(`Invalid user/account number combination`);
+            throw new ForbiddenException(`Invalid Account Number`);
         }
     };
 
@@ -162,16 +163,21 @@ export class AccountService {
             creditAccount.accountBalance = +creditAccount.accountBalance + transactionAmount;
 
             // Prepare and create transaction record
-            const newTransaction = new Transaction();
+            const newCreditTransaction = new Transaction();
 
-            await newTransaction.generateDepositTransaction(creditAccount, transactionAmount, transactionParty)
+            await newCreditTransaction.generateDepositTransaction(creditAccount, transactionAmount, transactionParty)
 
             await entityManager.transaction(async transactionalEntityManager => {
                 await transactionalEntityManager.save(creditAccount)
-                await transactionalEntityManager.save(newTransaction)
+                await transactionalEntityManager.save(newCreditTransaction)
             });
 
-            return new SuccessResponse(200, 'Deposit Successful', { reference: newTransaction.transactionRef });
+            const transactionSummary = {
+                accountBalance: creditAccount.accountBalance,
+                reference: newCreditTransaction.transactionRef
+            }
+
+            return new SuccessResponse(200, 'Deposit Successful', transactionSummary);
 
         } else {
 
@@ -203,16 +209,21 @@ export class AccountService {
             debitAccount.accountBalance = +debitAccount.accountBalance - transactionAmount;
 
             // Prepare and create transaction record
-            const newTransaction = new Transaction();
+            const newDebitTransaction = new Transaction();
 
-            await newTransaction.generateWithdrawalTransaction(debitAccount, transactionAmount, transactionParty)
+            await newDebitTransaction.generateWithdrawalTransaction(debitAccount, transactionAmount, transactionParty)
 
             await entityManager.transaction(async transactionalEntityManager => {
                 await transactionalEntityManager.save(debitAccount)
-                await transactionalEntityManager.save(newTransaction)
+                await transactionalEntityManager.save(newDebitTransaction)
             });
 
-            return new SuccessResponse(200, 'Withdrawal Successful', { reference: newTransaction.transactionRef });
+            const transactionSummary = {
+                accountBalance: debitAccount.accountBalance,
+                reference: newDebitTransaction.transactionRef
+            }
+
+            return new SuccessResponse(200, 'Withdrawal Successful', transactionSummary);
 
         } else {
 
@@ -236,7 +247,7 @@ export class AccountService {
 
         const creditAccount = await this.accountRepo.findOne({
             where: {
-                accountNumber: debitAccountNumber,
+                accountNumber: creditAccountNumber,
                 accountName: creditAccountName
             }
         });
@@ -270,8 +281,12 @@ export class AccountService {
                 await transactionalEntityManager.save(newCreditTransaction);
             });
 
-            return new SuccessResponse(200, 'Funds Transfer Successful', { reference: newDebitTransaction.transactionRef });
+            const transactionSummary = {
+                accountBalance: debitAccount.accountBalance,
+                reference: newDebitTransaction.transactionRef
+            }
 
+            return new SuccessResponse(200, 'Funds Transfer Successful', transactionSummary);
 
         } else {
 

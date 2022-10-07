@@ -16,7 +16,7 @@ export class OpenAccountDto {
     @IsNotEmpty()
     @IsString()
     @Length(3)
-    @Transform(({ value }) => value.toUppercase())
+    @Transform(({ value }) => value.toUpperCase())
     accountName: string;
 
 };
@@ -51,6 +51,7 @@ export class DepositFundsDto extends WithdrawFundsDto {
 
     @IsNotEmpty()
     @IsString()
+    @Transform(({ value }) => value.toUpperCase())
     accountName: string
 }
 
@@ -75,5 +76,6 @@ export class TransferFundsDto {
 
     @IsString()
     @MinLength(1, { message: 'Transfer Account Name length must be greater than Zero' })
+    @Transform(({ value }) => value.toUpperCase())
     creditAccountName: string;
 }

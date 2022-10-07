@@ -40,8 +40,8 @@ export class AccountRouter {
         );
 
         /**
-         * THIS ROUTE RETURNS ALL ACCOUNTS ON THE SERVER
-         * PLEASE NOTE THAT THE ROUTE LEFT IS OPEN DELIBERATELY WITHOUT AUTHORIZATION FOR THE PURPOSE OF THIS TASK
+         * THIS ROUTE RETURNS ALL ACCOUNTS ON THE SERVER.
+         * PLEASE NOTE THAT THE ROUTE IS LEFT OPEN WITHOUT AUTHORIZATION DELIBERATELY FOR THE PURPOSE OF THIS TASK.
          */
         this.router.get(
             '/',
@@ -67,6 +67,10 @@ export class AccountRouter {
             this.accountController.getAccountBalance
         );
 
+        /**
+         * THIS ROUTE RETURNS AN ACCOUNT WITH THE GIVEN ACCOUNT ID.
+         * PLEASE NOTE THAT THE ROUTE IS LEFT OPEN WITHOUT AUTHORIZATION DELIBERATELY FOR THE PURPOSE OF THIS TASK.
+         */
         this.router.get(
             '/:accountId',
             passport.authenticate('jwt', { session: false }),
