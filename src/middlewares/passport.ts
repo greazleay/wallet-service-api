@@ -22,6 +22,7 @@ export const passportConfig = (passport: { use: (arg0: JwtStrategy) => void; }) 
 
             const userExists = await userRepository.findOne({
                 select: {
+                    id: true,
                     email: true,
                     fullName: true,
                     lastLogin: true

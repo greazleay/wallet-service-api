@@ -50,7 +50,7 @@ export class AccountRouter {
         );
 
         this.router.get(
-            '/user-accounts',
+            '/user',
             passport.authenticate('jwt', { session: false }),
             this.accountController.getByUser
         );

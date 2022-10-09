@@ -61,7 +61,7 @@ export class AccountController {
     public getOneByAccountNumber = async (req: RequestWithUser, res: Response, next: NextFunction) => {
         try {
 
-            const { id } = req.user
+            const { id } = req.user;
 
             const { accountNumber } = await validateRequest(AccountNumberDto, req.body);
 
@@ -77,7 +77,7 @@ export class AccountController {
     public getByUser = async (req: RequestWithUser, res: Response, next: NextFunction) => {
         try {
 
-            const { id } = req.user
+            const { id } = req.user;
 
             const responseData = await this.accountService.findByUser(id)
 

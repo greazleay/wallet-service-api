@@ -83,15 +83,15 @@ export class AccountService {
     public async findByUser(userID: string) {
 
         const userAccounts = await this.accountRepo.find({
-            where: {
-                accountHolder: { id: userID }
-            },
             select: {
                 accountName: true,
                 accountNumber: true,
                 accountBalance: true,
                 createdAt: true
-            }
+            },
+            where: {
+                accountHolder: { id: userID }
+            },
         });
 
         if (userAccounts.length) {
