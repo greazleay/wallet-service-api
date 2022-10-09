@@ -108,6 +108,18 @@ export class AccountService {
 
         const { accountName } = openAccountDto;
 
+        // Check if the user has an existing account with the same account name
+        const accountNameExists = (await this.accountRepo.find({
+            select: {
+                accountName: true,
+            },
+            where: {
+                accountHolder: { id: user.id }
+            },
+        })).some(account => account.accountName === accountName);
+
+        if (accountNameExists) throw new ConflictException(`User has an existing account with name ${accountName}`)
+
         const allAccountNumbers = (await this.accountRepo.find({
             select: {
                 accountNumber: true,

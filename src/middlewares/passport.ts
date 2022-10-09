@@ -18,7 +18,7 @@ export const passportConfig = (passport: { use: (arg0: JwtStrategy) => void; }) 
 
         try {
 
-            const { sub } = jwt_payload
+            const { sub } = jwt_payload;
 
             const userExists = await userRepository.findOne({
                 select: {
