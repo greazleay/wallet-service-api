@@ -1,44 +1,89 @@
-import { User } from '@entities/user.entity';
 import { AppDataSource } from '@/data-source';
 import { App } from '@/app';
 import request from 'supertest';
 
-let connection: Connection, server: Server;
 const app = new App().getApp();
-
-const testCustomer = {
-    firstName: 'John',
-    lastName: 'Doe',
-    age: 48,
-    address: 'Plot 45A, Lorem Street, Ipsium'
-}
-
-const testCustomerNoFirstName = {
-    lastName: 'Doe',
-    age: 48,
-    address: 'Plot 45A, Lorem Street, Ipsium'
-}
+const server = app.listen(4000)
 
 beforeAll(async () => {
-    connection = await createConnection();
-    // Clear Database
-    await connection.synchronize(true);
-    server = app.listen(3000);
+
+    await AppDataSource.initialize();
+
 });
 
-afterAll(() => {
-    connection.close();
-    server.close();
+afterAll(async () => {
+
+    await AppDataSource.destroy();
+    server.close()
 })
 
-describe('auth', () => {
-    it('should resolve with true and valid userId for hardcoded token', async () => {
-        const response = await user.auth('fakeToken')
-        expect(response).toEqual({ userId: 'fakeUserId' })
-    })
+describe('authentication routes', () => {
 
-    it('should resolve with false for invalid token', async () => {
-        const response = await user.auth('invalidToken')
-        expect(response).toEqual({ error: { type: 'unauthorized', message: 'Authentication Failed' } })
+    describe('POST /auth/login', () => {
+
+        it('should successfully login the user', async () => {
+            const response = await request(app).post('/v1/auth/login').send({ email: 'labeight@affecting.org', password: 'password123' }).retry(2);
+
+            expect(response.status).toEqual(200);
+            expect(response.body).toEqual({ authToken: expect.any(String), message: expect.any(String) });
+            expect(response.body).toHaveProperty('authToken');
+        });
+
+        it('should return an error if the email is not provided', async () => {
+            const response = await request(app).post('/v1/auth/login').send({ password: 'password123' }).retry(2);
+
+            expect(response.status).toEqual(400);
+            expect(response.body).toEqual({
+                "error": "Validation Errors",
+                "statusCode": 400,
+                "name": "ValidationException",
+                "errors": expect.anything()
+            });
+        });
+
+        it('should return an error if the password is not provided', async () => {
+            const response = await request(app).post('/v1/auth/login').send({ email: 'labeight@affecting.org' }).retry(2);
+
+            expect(response.status).toEqual(400);
+            expect(response.body).toEqual({
+                "error": "Validation Errors",
+                "statusCode": 400,
+                "name": "ValidationException",
+                "errors": [
+                    {
+                        "msg": "Invalid value",
+                        "param": "password",
+                        "location": "body"
+                    },
+                    {
+                        "msg": "Password is required and must be at least 6 characters long",
+                        "param": "password",
+                        "location": "body"
+                    }
+                ]
+            });
+        });
+
+        it('should return an error if the email is not registered', async () => {
+            const response = await request(app).post('/v1/auth/login').send({ email: 'labeight@afterlife.com', password: 'password123' }).retry(2);
+
+            expect(response.status).toEqual(404);
+            expect(response.body).toEqual({
+                error: 'User with email: labeight@afterlife.com not found',
+                name: 'NotFoundException',
+                statusCode: 404
+            });
+        });
+
+        it('should return an error if the password is incorrect', async () => {
+            const response = await request(app).post('/v1/auth/login').send({ email: 'labeight@affecting.org', password: 'password1234' }).retry(2);
+
+            expect(response.status).toEqual(401);
+            expect(response.body).toEqual({
+                error: 'Invalid Login Credentials',
+                name: 'UnAuthorizedException',
+                statusCode: 401
+            });
+        });
     })
 })

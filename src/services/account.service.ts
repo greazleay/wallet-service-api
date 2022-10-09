@@ -161,7 +161,7 @@ export class AccountService {
 
         const { accountNumber, accountName, transactionAmount, transactionParty } = despositFundsDto;
 
-        // Search for account and add transaction amout to account balance
+        // Search for account and validate account name/number
         const creditAccount = await this.accountRepo.findOne({
             where: {
                 accountNumber,

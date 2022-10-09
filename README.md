@@ -87,7 +87,7 @@ $ npm run start
 
 ## Documentation
 
-Full API Documentation is available [here]()
+Full API Documentation is available [here](https://documenter.getpostman.com/view/13908166/2s83ziPQ2Z)
 
 
 ## API Reference
