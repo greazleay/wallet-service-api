@@ -45,7 +45,7 @@ This is a Demo Wallet Service Provider designed with a self-self approach, Users
 
 ## Authors
 
-- [@greazleay](https://www.github.com/greazleay)
+- [Lekan Adetunmbi](https://www.github.com/greazleay)
 
 
 ## Tech Stack
@@ -88,6 +88,10 @@ $ npm run start
 ## Documentation
 
 Full API Documentation is available [here](https://documenter.getpostman.com/view/13908166/2s83ziPQ2Z)
+
+## Entity Relationship Diagram (ERD)
+
+![E-R Diagram](ERD.png)
 
 
 ## API Reference

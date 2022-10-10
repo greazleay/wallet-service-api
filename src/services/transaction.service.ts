@@ -1,4 +1,4 @@
-import { Between, Equal } from 'typeorm';
+import { Between } from 'typeorm';
 import { transactionRepository } from '@/data-source';
 import { SearchAccountNumberAndDateDto } from '@dtos/transaction.dto';
 import { BadRequestException, ForbiddenException, NotFoundException } from '@exceptions/common.exceptions';

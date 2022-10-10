@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, BeforeInsert } from 'typeorm';
+import { BeforeInsert, Column, Entity, ManyToOne } from 'typeorm';
 import { AbstractEntity } from '@entities/abstract.entity';
 import { Account } from '@entities/account.entity';
 import { TransactionMode, TransactionType, TransactionStatus } from '@interfaces/transaction.interface';
@@ -6,44 +6,40 @@ import { TransactionMode, TransactionType, TransactionStatus } from '@interfaces
 @Entity()
 export class Transaction extends AbstractEntity {
 
-  @Column('datetime')
-  transactionDate!: Date;
-
   @Column('varchar', { length: 255, default: '' })
-  description!: string;
+  description: string;
 
   @Column('decimal', { precision: 15, scale: 2, default: 0 })
-  transactionAmount!: number;
+  transactionAmount: number;
 
   @Column('enum', { enum: TransactionType, default: TransactionType.FUNDS_DEPOSIT })
-  transactionType!: TransactionType;
+  transactionType: TransactionType;
 
   @Column('enum', { enum: TransactionMode, default: TransactionMode.DEBIT })
-  transactionMode!: TransactionMode;
+  transactionMode: TransactionMode;
 
   @Column('enum', { enum: TransactionStatus, default: TransactionStatus.SUCCESSFUL })
-  transactionStatus!: TransactionStatus;
+  transactionStatus: TransactionStatus;
 
   @ManyToOne(() => Account, (account) => account.debitTransactions, { nullable: true })
-  debitAccount!: Account;
+  debitAccount: Account;
 
   @ManyToOne(() => Account, (account) => account.creditTransactions, { nullable: true })
-  creditAccount!: Account;
+  creditAccount: Account;
 
   @Column('decimal', { precision: 15, scale: 2, default: 0 })
-  accountBalance!: number;
+  accountBalance: number;
 
   @Column('varchar', { length: 255, nullable: true })
-  transactionRef!: string;
+  transactionRef: string;
 
   @BeforeInsert()
   addTransactionRef() {
-    this.transactionRef = `${this.transactionType}-${this.transactionMode}-${this.transactionDate.getTime()}`;
+    this.transactionRef = `${this.transactionType}-${this.transactionMode}-${this.createdAt.getTime()}`;
   }
 
   public async generateDepositTransaction(account: Account, transactionAmount: number, transactionParty: string) {
 
-    this.transactionDate = new Date()
     this.description = `Deposit of ${transactionAmount} made by ${transactionParty}`;
     this.transactionAmount = transactionAmount;
     this.transactionMode = TransactionMode.CREDIT;
@@ -55,7 +51,6 @@ export class Transaction extends AbstractEntity {
 
   public async generateWithdrawalTransaction(account: Account, transactionAmount: number, transactionParty: string) {
 
-    this.transactionDate = new Date()
     this.description = `Cash Withdrawal of ${transactionAmount} made by ${transactionParty}`
     this.transactionAmount = transactionAmount;
     this.transactionMode = TransactionMode.DEBIT;
@@ -83,8 +78,7 @@ export class Transaction extends AbstractEntity {
       accountName: creditAccountName,
       accountNumber: creditAccountNumber
     } = creditAccount;
-
-    this.transactionDate = new Date();
+    ;
     this.description = `Funds transfer of ${transactionAmount} from ${debitAccountNumber} - ${debitAccountName} to ${creditAccountNumber} - ${creditAccountName}`;
     this.transactionAmount = transactionAmount;
     this.transactionMode = isDebit ? TransactionMode.DEBIT : TransactionMode.CREDIT;
