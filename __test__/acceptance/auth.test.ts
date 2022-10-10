@@ -1,13 +1,17 @@
+import request from 'supertest';
+import { createServer, Server } from 'http';
 import { AppDataSource } from '@/data-source';
 import { App } from '@/app';
-import request from 'supertest';
+import { ENV } from '@config/configuration';
+
 
 const app = new App().getApp();
-const server = app.listen(4000)
+const server: Server = createServer(app);
 
 beforeAll(async () => {
 
     await AppDataSource.initialize();
+    server.listen(ENV.PORT)
 
 });
 
@@ -21,69 +25,110 @@ describe('authentication routes', () => {
 
     describe('POST /auth/login', () => {
 
-        it('should successfully login the user', async () => {
-            const response = await request(app).post('/v1/auth/login').send({ email: 'labeight@affecting.org', password: 'password123' }).retry(2);
+        it('Should Successfully login the user with a valid email/password combination', async () => {
+
+            const response = await request(app)
+                .post('/v1/auth/login')
+                .send({
+                    email: 'valid-email',
+                    password: 'valid-password'
+                })
+                .retry(2);
 
             expect(response.status).toEqual(200);
-            expect(response.body).toEqual({ authToken: expect.any(String), message: expect.any(String) });
-            expect(response.body).toHaveProperty('authToken');
+
+            expect(response.body).toEqual({
+                data: expect.any(String),
+                message: expect.any(String),
+                status: 'success',
+                statusCode: 200
+            });
+
         });
 
-        it('should return an error if the email is not provided', async () => {
-            const response = await request(app).post('/v1/auth/login').send({ password: 'password123' }).retry(2);
+        it('Should return a Bad Request Error if the email is not provided', async () => {
+
+            const response = await request(app)
+                .post('/v1/auth/login')
+                .send({ password: 'valid-password' })
+                .retry(2);
 
             expect(response.status).toEqual(400);
+
             expect(response.body).toEqual({
                 "error": "Validation Errors",
                 "statusCode": 400,
                 "name": "ValidationException",
                 "errors": expect.anything()
             });
+
         });
 
-        it('should return an error if the password is not provided', async () => {
-            const response = await request(app).post('/v1/auth/login').send({ email: 'labeight@affecting.org' }).retry(2);
+        it('Should return a Bad Request Error if the password is not provided', async () => {
+
+            const response = await request(app)
+                .post('/v1/auth/login')
+                .send({ email: 'valid-email' })
+                .retry(2);
 
             expect(response.status).toEqual(400);
+
             expect(response.body).toEqual({
                 "error": "Validation Errors",
                 "statusCode": 400,
                 "name": "ValidationException",
                 "errors": [
                     {
-                        "msg": "Invalid value",
-                        "param": "password",
-                        "location": "body"
-                    },
-                    {
-                        "msg": "Password is required and must be at least 6 characters long",
-                        "param": "password",
-                        "location": "body"
+                        "property": "password",
+                        "error": {
+                            "isString": "password must be a string",
+                            "isNotEmpty": "password should not be empty"
+                        }
                     }
                 ]
             });
+
         });
 
-        it('should return an error if the email is not registered', async () => {
-            const response = await request(app).post('/v1/auth/login').send({ email: 'labeight@afterlife.com', password: 'password123' }).retry(2);
+        it('Should return an UnAuthorized Error Response if the email is not registered', async () => {
 
-            expect(response.status).toEqual(404);
-            expect(response.body).toEqual({
-                error: 'User with email: labeight@afterlife.com not found',
-                name: 'NotFoundException',
-                statusCode: 404
-            });
-        });
-
-        it('should return an error if the password is incorrect', async () => {
-            const response = await request(app).post('/v1/auth/login').send({ email: 'labeight@affecting.org', password: 'password1234' }).retry(2);
+            const response = await request(app)
+                .post('/v1/auth/login')
+                .send({
+                    email: 'unregistered-email',
+                    password: 'valid-password'
+                })
+                .retry(2);
 
             expect(response.status).toEqual(401);
+
             expect(response.body).toEqual({
-                error: 'Invalid Login Credentials',
-                name: 'UnAuthorizedException',
-                statusCode: 401
+                "error": "Invalid Credentials",
+                "name": "UnAuthorizedException",
+                "statusCode": 401
             });
+
+        });
+
+        it('Should return an UnAuthroized Error Response if the password is incorrect', async () => {
+
+            const response = await request(app)
+                .post('/v1/auth/login')
+                .send({
+                    email: 'valid-email',
+                    password: 'invalid-password'
+                }
+                )
+                .retry(2);
+
+            expect(response.status).toEqual(401);
+
+            expect(response.body).toEqual({
+                "error": "Invalid Credentials",
+                "name": "UnAuthorizedException",
+                "statusCode": 401
+            });
+
         });
     })
 })
