@@ -8,7 +8,11 @@ import {
 } from '@dtos/account.dto';
 import { Account } from '@entities/account.entity';
 import { User } from '@entities/user.entity';
-import { ConflictException, ForbiddenException, NotFoundException } from '@exceptions/common.exceptions';
+import {
+    ConflictException,
+    ForbiddenException,
+    NotFoundException
+} from '@exceptions/common.exceptions';
 import { SuccessResponse } from '@helpers/successResponse';
 
 
@@ -25,6 +29,9 @@ export class AccountService {
                 accountName: true,
                 accountBalance: true,
                 createdAt: true
+            },
+            order: {
+                createdAt: 'DESC'
             }
         });
 
@@ -58,8 +65,7 @@ export class AccountService {
 
         const account = await this.accountRepo.findOne({
             relations: {
-                debitTransactions: true,
-                creditTransactions: true
+                transactions: true
             },
             where: {
                 accountNumber,
@@ -92,6 +98,9 @@ export class AccountService {
             where: {
                 accountHolder: { id: userID }
             },
+            order: {
+                createdAt: 'DESC'
+            }
         });
 
         if (userAccounts.length) {
@@ -162,30 +171,35 @@ export class AccountService {
         const { accountNumber, accountName, transactionAmount, transactionParty } = despositFundsDto;
 
         // Search for account and validate account name/number
-        const creditAccount = await this.accountRepo.findOne({
+        const account = await this.accountRepo.findOne({
             where: {
                 accountNumber,
                 accountName
             }
         });
 
-        if (creditAccount) {
+        if (account) {
 
             // Credit the Respective Account
-            creditAccount.accountBalance = +creditAccount.accountBalance + transactionAmount;
+            account.accountBalance = +account.accountBalance + transactionAmount;
 
             // Prepare and create transaction record
             const newCreditTransaction = new Transaction();
 
-            await newCreditTransaction.generateDepositTransaction(creditAccount, transactionAmount, transactionParty)
+            await newCreditTransaction.generateDepositOrWithdrawalTransaction({
+                account,
+                transactionAmount,
+                transactionParty,
+                isDebit: false
+            });
 
             await entityManager.transaction(async transactionalEntityManager => {
-                await transactionalEntityManager.save(creditAccount)
+                await transactionalEntityManager.save(account)
                 await transactionalEntityManager.save(newCreditTransaction)
             });
 
             const transactionSummary = {
-                accountBalance: creditAccount.accountBalance,
+                accountBalance: account.accountBalance,
                 reference: newCreditTransaction.transactionRef
             }
 
@@ -202,7 +216,7 @@ export class AccountService {
         const { accountNumber, transactionAmount, transactionParty } = withdrawFundsDto;
 
         // Check if the account exists and the account belongs to the user making the withdrawal
-        const debitAccount = await this.accountRepo.findOne({
+        const account = await this.accountRepo.findOne({
             where: {
                 accountNumber,
                 accountHolder: {
@@ -211,27 +225,32 @@ export class AccountService {
             }
         });
 
-        if (debitAccount) {
+        if (account) {
 
-            if (debitAccount.accountBalance < transactionAmount) {
+            if (account.accountBalance < transactionAmount) {
                 throw new ForbiddenException(`Unable to process transaction, Insufficient funds`)
             }
 
             // Deduct the transaction amount from the debit account
-            debitAccount.accountBalance = +debitAccount.accountBalance - transactionAmount;
+            account.accountBalance = +account.accountBalance - transactionAmount;
 
             // Prepare and create transaction record
             const newDebitTransaction = new Transaction();
 
-            await newDebitTransaction.generateWithdrawalTransaction(debitAccount, transactionAmount, transactionParty)
+            await newDebitTransaction.generateDepositOrWithdrawalTransaction({
+                account,
+                transactionAmount,
+                transactionParty,
+                isDebit: true
+            });
 
             await entityManager.transaction(async transactionalEntityManager => {
-                await transactionalEntityManager.save(debitAccount)
+                await transactionalEntityManager.save(account)
                 await transactionalEntityManager.save(newDebitTransaction)
             });
 
             const transactionSummary = {
-                accountBalance: debitAccount.accountBalance,
+                accountBalance: account.accountBalance,
                 reference: newDebitTransaction.transactionRef
             }
 
@@ -283,8 +302,19 @@ export class AccountService {
             const newDebitTransaction = new Transaction();
             const newCreditTransaction = new Transaction();
 
-            await newDebitTransaction.generateFundsTransferTransaction(debitAccount, creditAccount, transferAmount, true)
-            await newCreditTransaction.generateFundsTransferTransaction(debitAccount, creditAccount, transferAmount, false)
+            await newDebitTransaction.generateFundsTransferTransaction({
+                debitAccount,
+                creditAccount,
+                transferAmount,
+                isDebit: true
+            });
+
+            await newCreditTransaction.generateFundsTransferTransaction({
+                debitAccount,
+                creditAccount,
+                transferAmount,
+                isDebit: false
+            });
 
             await entityManager.transaction(async transactionalEntityManager => {
                 await transactionalEntityManager.save(debitAccount);

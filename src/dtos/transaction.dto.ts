@@ -10,23 +10,23 @@ export class TransactionIdDto {
 
 export class TransactionRefDto {
 
-    @IsNotEmpty()
-    @IsString()
     @MinLength(30)
+    @IsString()
+    @IsNotEmpty()
     readonly transactionRef: string;
 };
 
 export class SearchAccountNumberAndDateDto {
 
-    @IsNotEmpty()
-    @IsInt()
-    @Min(1000000000)
     @Max(9999999999)
+    @Min(1000000000)
+    @IsInt()
+    @IsNotEmpty()
     accountNumber: number;
 
-    @IsNotEmpty()
     @Transform(({ value }) => new Date(value))
     @IsDate()
+    @IsNotEmpty()
     readonly searchDate: Date;
 
 }

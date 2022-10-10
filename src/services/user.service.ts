@@ -32,6 +32,9 @@ export class UserService {
                 email: true,
                 fullName: true,
                 createdAt: true
+            },
+            order: {
+                createdAt: 'DESC'
             }
         })
 

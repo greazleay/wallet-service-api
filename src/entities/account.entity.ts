@@ -19,11 +19,8 @@ export class Account extends AbstractEntity {
     @ManyToOne(() => User, user => user.accounts)
     accountHolder: User
 
-    @OneToMany(() => Transaction, (transactions) => transactions.creditAccount)
-    creditTransactions: Transaction[];
-
-    @OneToMany(() => Transaction, (transactions) => transactions.debitAccount)
-    debitTransactions: Transaction[];
+    @OneToMany(() => Transaction, (transactions) => transactions.account)
+    transactions: Transaction[];
 
     public async generateAccountNumber(accountNumbers: number[]): Promise<number> {
 

@@ -13,10 +13,10 @@ import {
 
 export class OpenAccountDto {
 
-    @IsNotEmpty()
-    @IsString()
+    @Transform(({ value }) => String(value).toUpperCase())
     @Length(3)
-    @Transform(({ value }) => value.toUpperCase())
+    @IsString()
+    @IsNotEmpty()
     accountName: string;
 
 };
@@ -29,53 +29,53 @@ export class AccountIdDto {
 
 export class AccountNumberDto {
 
-    @IsNotEmpty()
-    @IsInt()
-    @Min(1000000000)
     @Max(9999999999)
+    @Min(1000000000)
+    @IsInt()
+    @IsNotEmpty()
     readonly accountNumber: number;
 };
 
 export class WithdrawFundsDto extends AccountNumberDto {
 
-    @IsInt()
     @Min(1, { message: 'Transaction Amount must be greater than Zero' })
+    @IsInt()
     transactionAmount: number;
 
+    @Length(4)
     @IsString()
-    @Length(1)
     transactionParty: string;
 };
 
 export class DepositFundsDto extends WithdrawFundsDto {
 
-    @IsNotEmpty()
+    @Transform(({ value }) => String(value).toUpperCase())
     @IsString()
-    @Transform(({ value }) => value.toUpperCase())
+    @IsNotEmpty()
     accountName: string
 }
 
 export class TransferFundsDto {
 
-    @IsNotEmpty()
-    @IsInt()
     @Min(1, { message: 'Transaction Amount must be greater than Zero' })
+    @IsInt()
+    @IsNotEmpty()
     transferAmount: number;
 
-    @IsNotEmpty()
-    @IsInt()
-    @Min(1000000000)
     @Max(9999999999)
+    @Min(1000000000)
+    @IsInt()
+    @IsNotEmpty()
     debitAccountNumber: number;
 
-    @IsNotEmpty()
-    @IsInt()
-    @Min(1000000000)
     @Max(9999999999)
+    @Min(1000000000)
+    @IsInt()
+    @IsNotEmpty()
     creditAccountNumber: number;
 
+    @Transform(({ value }) => String(value).toUpperCase())
+    @MinLength(2, { message: 'Transfer Account Name Must have more than 1 character' })
     @IsString()
-    @MinLength(1, { message: 'Transfer Account Name length must be greater than Zero' })
-    @Transform(({ value }) => value.toUpperCase())
     creditAccountName: string;
 }

@@ -1,4 +1,4 @@
-# Demo Credit
+# Demo Credit API
 
 ## About
 

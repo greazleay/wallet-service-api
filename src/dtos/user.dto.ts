@@ -2,6 +2,7 @@ import {
     IsAlphanumeric,
     IsEmail,
     IsNotEmpty,
+    IsString,
     IsUUID,
     MinLength
 } from 'class-validator';
@@ -10,25 +11,30 @@ import {
 export class IsValidEmailDto {
 
     @IsEmail()
-    readonly email: string | undefined
+    @IsNotEmpty()
+    readonly email: string;
 }
 
 export class CreateUserDto {
 
+    @IsString()
     @IsNotEmpty()
-    readonly fullName: string | undefined;
+    readonly fullName: string;
 
     @IsEmail()
+    @IsNotEmpty()
     readonly email: string | undefined;
 
-    @IsAlphanumeric()
     @MinLength(6, { message: 'Password must be at least 6 characters long' })
-    readonly password: string | undefined;
+    @IsAlphanumeric()
+    @IsNotEmpty()
+    readonly password: string;
 }
 
 
 export class ValidUserIdDto {
 
     @IsUUID(4)
-    userID: string | undefined
+    @IsNotEmpty()
+    userID: string;
 }

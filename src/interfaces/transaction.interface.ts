@@ -1,3 +1,5 @@
+import { Account } from '@entities/account.entity'
+
 export enum TransactionMode {
     DEBIT = 'DEBIT',
     CREDIT = 'CREDIT',
@@ -12,4 +14,18 @@ export enum TransactionType {
 export enum TransactionStatus {
     FAILED = 'FAILED',
     SUCCESSFUL = 'SUCCESSFUL',
+}
+
+export interface IGenerateDepositOrWithdrawalTransactionParams {
+    account: Account,
+    transactionAmount: number,
+    transactionParty: string,
+    isDebit: boolean
+}
+
+export interface IGenerateFundsTransferTransactionParams {
+    debitAccount: Account,
+    creditAccount: Account,
+    transferAmount: number,
+    isDebit: boolean
 }

@@ -11,7 +11,11 @@ export class TransactionService {
 
     public async findAll(): Promise<SuccessResponse> {
 
-        const allTransactions = await this.transactionRepo.find({});
+        const allTransactions = await this.transactionRepo.find({
+            order: {
+                createdAt: 'DESC'
+            }
+        });
 
         if (allTransactions.length) {
 
@@ -19,7 +23,7 @@ export class TransactionService {
 
         } else {
 
-            throw new NotFoundException('No Accounts on the Server');
+            throw new NotFoundException('No Transactions on the Server');
 
         }
     };
@@ -27,11 +31,10 @@ export class TransactionService {
     public async findOneById(id: string): Promise<SuccessResponse> {
 
         const account = await this.transactionRepo.findOne({
-            where: { id },
             relations: {
-                creditAccount: true,
-                debitAccount: true
-            }
+                account: true,
+            },
+            where: { id }
         });
 
         if (account) {
@@ -49,13 +52,12 @@ export class TransactionService {
 
         const account = await this.transactionRepo.findOne({
             relations: {
-                creditAccount: true,
-                debitAccount: true
+                account: true
             },
-            where: [
-                { transactionRef, creditAccount: { accountHolder: { id: userID } } },
-                { transactionRef, debitAccount: { accountHolder: { id: userID } } }
-            ]
+            where: {
+                transactionRef,
+                account: { accountHolder: { id: userID } }
+            }
         });
 
         if (account) {
@@ -74,26 +76,21 @@ export class TransactionService {
         userID: string
     ): Promise<SuccessResponse> {
 
-        const foundAccounts = await this.transactionRepo.find({
-            where: [
-                {
-                    creditAccount: {
-                        accountNumber,
-                        accountHolder: { id: userID }
-                    }
+        const foundTransactions = await this.transactionRepo.find({
+            where: {
+                account: {
+                    accountNumber,
+                    accountHolder: { id: userID }
                 },
-                {
-                    debitAccount: {
-                        accountNumber,
-                        accountHolder: { id: userID }
-                    }
-                }
-            ],
+            },
+            order: {
+                createdAt: 'DESC'
+            }
         });
 
-        if (foundAccounts.length) {
+        if (foundTransactions.length) {
 
-            return new SuccessResponse(200, 'All Transactions on Account', foundAccounts);
+            return new SuccessResponse(200, 'All Transactions on Account', foundTransactions);
 
         } else {
 
@@ -110,32 +107,46 @@ export class TransactionService {
 
         const endDate = new Date(searchDate).getTime() + 86400000;
 
-        const foundAccounts = await this.transactionRepo.find({
-            where: [
-                {
-                    creditAccount: {
-                        accountNumber,
-                        accountHolder: { id: userID }
-                    },
-                    createdAt: Between(new Date(searchDate), new Date(endDate))
+        const foundTransactions = await this.transactionRepo.find({
+            where: {
+                createdAt: Between(new Date(searchDate), new Date(endDate)),
+                account: {
+                    accountNumber,
+                    accountHolder: { id: userID }
                 },
-                {
-                    debitAccount: {
-                        accountNumber,
-                        accountHolder: { id: userID }
-                    },
-                    createdAt: Between(new Date(searchDate), new Date(endDate))
-                }
-            ],
+            },
+            order: {
+                createdAt: 'DESC'
+            }
         });
 
-        if (foundAccounts.length) {
+        if (foundTransactions.length) {
 
-            return new SuccessResponse(200, 'All Transactions on Account', foundAccounts);
+            return new SuccessResponse(
+                200,
+                `All Account Transactions on ${searchDate.toLocaleString(
+                    undefined,
+                    {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    })
+                }`,
+                foundTransactions
+            );
 
         } else {
 
-            throw new NotFoundException(`No Transaction(s) for Account with accountNumber: ${accountNumber} on ${searchDate}`)
+            throw new NotFoundException(
+                `No Transaction(s) for Account ${accountNumber} on ${searchDate.toLocaleString(
+                    undefined,
+                    {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    })
+                }`
+            )
         }
     }
 }

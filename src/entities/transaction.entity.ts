@@ -1,7 +1,13 @@
 import { BeforeInsert, Column, Entity, ManyToOne } from 'typeorm';
 import { AbstractEntity } from '@entities/abstract.entity';
 import { Account } from '@entities/account.entity';
-import { TransactionMode, TransactionType, TransactionStatus } from '@interfaces/transaction.interface';
+import {
+  TransactionMode,
+  TransactionType,
+  TransactionStatus,
+  IGenerateDepositOrWithdrawalTransactionParams,
+  IGenerateFundsTransferTransactionParams
+} from '@interfaces/transaction.interface';
 
 @Entity()
 export class Transaction extends AbstractEntity {
@@ -21,11 +27,8 @@ export class Transaction extends AbstractEntity {
   @Column('enum', { enum: TransactionStatus, default: TransactionStatus.SUCCESSFUL })
   transactionStatus: TransactionStatus;
 
-  @ManyToOne(() => Account, (account) => account.debitTransactions, { nullable: true })
-  debitAccount: Account;
-
-  @ManyToOne(() => Account, (account) => account.creditTransactions, { nullable: true })
-  creditAccount: Account;
+  @ManyToOne(() => Account, (account) => account.transactions, { nullable: true })
+  account: Account;
 
   @Column('decimal', { precision: 15, scale: 2, default: 0 })
   accountBalance: number;
@@ -35,37 +38,34 @@ export class Transaction extends AbstractEntity {
 
   @BeforeInsert()
   addTransactionRef() {
-    this.transactionRef = `${this.transactionType}-${this.transactionMode}-${this.createdAt.getTime()}`;
+    this.transactionRef = `${this.transactionMode}: ${this.transactionType}-${(new Date()).getTime()}`;
   }
 
-  public async generateDepositTransaction(account: Account, transactionAmount: number, transactionParty: string) {
+  public async generateDepositOrWithdrawalTransaction({
+    account,
+    transactionAmount,
+    transactionParty,
+    isDebit
+  }: IGenerateDepositOrWithdrawalTransactionParams) {
 
-    this.description = `Deposit of ${transactionAmount} made by ${transactionParty}`;
+    const creditDescription = `CREDIT: Deposit of ${transactionAmount} made by ${transactionParty}`;
+    const debitDescription = `DEBIT: Cash Withdrawal of ${transactionAmount} made by ${transactionParty}`
+
+    this.description = isDebit ? debitDescription : creditDescription;
     this.transactionAmount = transactionAmount;
-    this.transactionMode = TransactionMode.CREDIT;
-    this.transactionType = TransactionType.FUNDS_DEPOSIT;
+    this.transactionMode = isDebit ? TransactionMode.DEBIT : TransactionMode.CREDIT;
+    this.transactionType = isDebit ? TransactionType.FUNDS_WITHDRAWAL : TransactionType.FUNDS_DEPOSIT;
     this.transactionStatus = TransactionStatus.SUCCESSFUL;
-    this.creditAccount = account;
+    this.account = account;
     this.accountBalance = account.accountBalance;
-  }
+  };
 
-  public async generateWithdrawalTransaction(account: Account, transactionAmount: number, transactionParty: string) {
-
-    this.description = `Cash Withdrawal of ${transactionAmount} made by ${transactionParty}`
-    this.transactionAmount = transactionAmount;
-    this.transactionMode = TransactionMode.DEBIT;
-    this.transactionType = TransactionType.FUNDS_WITHDRAWAL;
-    this.transactionStatus = TransactionStatus.SUCCESSFUL;
-    this.debitAccount = account;
-    this.accountBalance = account.accountBalance;
-  }
-
-  public async generateFundsTransferTransaction(
-    debitAccount: Account,
-    creditAccount: Account,
-    transactionAmount: number,
-    isDebit: boolean
-  ) {
+  public async generateFundsTransferTransaction({
+    debitAccount,
+    creditAccount,
+    transferAmount,
+    isDebit
+  }: IGenerateFundsTransferTransactionParams) {
 
     const {
       accountBalance: debitAccountBalance,
@@ -78,14 +78,16 @@ export class Transaction extends AbstractEntity {
       accountName: creditAccountName,
       accountNumber: creditAccountNumber
     } = creditAccount;
-    ;
-    this.description = `Funds transfer of ${transactionAmount} from ${debitAccountNumber} - ${debitAccountName} to ${creditAccountNumber} - ${creditAccountName}`;
-    this.transactionAmount = transactionAmount;
+
+    const creditDescription = `CREDIT: Funds Transfer of ${transferAmount} from ${debitAccountName} - ${debitAccountNumber}`
+    const debitDescription = `DEBIT: Funds Transfer of ${transferAmount} to ${creditAccountName} - ${creditAccountNumber}`
+
+    this.description = isDebit ? debitDescription : creditDescription;
+    this.transactionAmount = transferAmount;
     this.transactionMode = isDebit ? TransactionMode.DEBIT : TransactionMode.CREDIT;
     this.transactionType = TransactionType.FUNDS_TRANSFER;
     this.transactionStatus = TransactionStatus.SUCCESSFUL;
-    this.debitAccount = debitAccount;
-    this.creditAccount = creditAccount;
+    this.account = isDebit ? debitAccount : creditAccount;
     this.accountBalance = isDebit ? debitAccountBalance : creditAccountBalance;
   }
 
