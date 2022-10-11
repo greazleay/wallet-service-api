@@ -107,6 +107,26 @@ describe('Accounts Routes', () => {
             expect(response.body.data).toHaveProperty('reference')
 
         });
+
+        it('Should return a Conflict Error Response if account name and number does not match', async () => {
+
+            const response = await request(app)
+                .post('/v1/accounts/deposit-funds')
+                .send({
+                    accountName: '<valid-account-name>',
+                    accountNumber: '<10-digit-account-number>',
+                    transactionAmount: '<amount-to-transfer>',
+                    transactionParty: '<individual-making-the-transfer>'
+                })
+                .auth(accessToken, { type: 'bearer' });
+
+            expect(response.status).toEqual(409);
+
+            expect(response.body.statusCode).toEqual(409);
+
+            expect(response.body.error).toEqual('Invalid Account name/number combinations');
+
+        });
     })
 
     describe('POST /accounts/withdraw-funds', () => {
@@ -116,7 +136,6 @@ describe('Accounts Routes', () => {
             const response = await request(app)
                 .post('/v1/accounts/withdraw-funds')
                 .send({
-                    accountName: '<valid-account-name>',
                     accountNumber: '<10-digit-account-number>',
                     transactionAmount: '<amount-to-transfer>',
                     transactionParty: '<individual-making-the-transfer>'
@@ -134,6 +153,26 @@ describe('Accounts Routes', () => {
             expect(response.body.data).toHaveProperty('reference')
 
         });
+
+        it('Should return a 403 Forbidden Error Response if account balance is insufficient for the transaction', async () => {
+
+            const response = await request(app)
+                .post('/v1/accounts/withdraw-funds')
+                .send({
+                    accountNumber: '<10-digit-account-number>',
+                    transactionAmount: '<amount-to-transfer>',
+                    transactionParty: '<individual-making-the-transfer>'
+                })
+                .auth(accessToken, { type: 'bearer' });
+
+            expect(response.status).toEqual(403);
+
+            expect(response.body.statusCode).toEqual(403);
+
+            expect(response.body.error).toEqual('Unable to process transaction, Insufficient funds');
+
+        });
+
     })
 
     describe('POST /accounts/transfer-funds', () => {
@@ -143,10 +182,10 @@ describe('Accounts Routes', () => {
             const response = await request(app)
                 .post('/v1/accounts/withdraw-funds')
                 .send({
-                    accountName: '<valid-account-name>',
-                    accountNumber: '<10-digit-account-number>',
-                    transactionAmount: '<amount-to-transfer>',
-                    transactionParty: '<individual-making-the-transfer>'
+                    creditAccountName: '<valid-account-name>',
+                    creditAccountNumber: '<10-digit-account-number>',
+                    debitAccountNumber: '<10-digit-account-number>',
+                    transferAmount: '<amount-to-transfer>'
                 })
                 .auth(accessToken, { type: 'bearer' });
 
@@ -159,6 +198,26 @@ describe('Accounts Routes', () => {
             expect(response.body.data).toHaveProperty('accountNumber')
 
             expect(response.body.data).toHaveProperty('reference')
+
+        });
+
+        it('Should return a 403 Forbidden Error Response if balance on debitAccount is insufficient for the transaction', async () => {
+
+            const response = await request(app)
+                .post('/v1/accounts/withdraw-funds')
+                .send({
+                    creditAccountName: '<valid-account-name>',
+                    creditAccountNumber: '<10-digit-account-number>',
+                    debitAccountNumber: '<10-digit-account-number>',
+                    transferAmount: '<amount-to-transfer>'
+                })
+                .auth(accessToken, { type: 'bearer' });
+
+            expect(response.status).toEqual(403);
+
+            expect(response.body.statusCode).toEqual(403);
+
+            expect(response.body.error).toEqual('Unable to process transaction, Insufficient funds');
 
         });
     })

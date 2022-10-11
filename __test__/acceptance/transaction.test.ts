@@ -84,6 +84,25 @@ describe('Transaction Routes', () => {
 
     describe('GET /transactions/reference', () => {
 
+        it('Should get transaction details by transaction reference', async () => {
+
+            const response = await request(app)
+                .get('/v1/transactions/reference')
+                .send({ transactionRef: '<valid-transaction-reference>' })
+                .auth(accessToken, { type: 'bearer' });
+
+            expect(response.status).toEqual(200);
+
+            expect(response.body.status).toEqual('success');
+
+            expect(response.body.statusCode).toEqual(200);
+
+            expect(response.body.message).toEqual('Transaction Details')
+
+            expect(response.body).toHaveProperty('data')
+
+        });
+
         it('Should return an UnAuthorized Error Response if an invalid token is passed with the request', async () => {
 
             const response = await request(app)
