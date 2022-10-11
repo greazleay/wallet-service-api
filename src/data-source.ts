@@ -17,7 +17,9 @@ export const AppDataSource = new DataSource({
     logging: false,
     ssl: {
         rejectUnauthorized: false
-    }
+    },
+    connectTimeout: 30000,
+    timezone: 'Z'
 });
 
 export const entityManager = AppDataSource.manager;

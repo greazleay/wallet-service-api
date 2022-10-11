@@ -10,7 +10,7 @@ let server: Server;
 let accessToken: string = ''
 
 
-describe('User Routes', () => {
+describe('Transaction Routes', () => {
 
     beforeAll(async () => {
 
@@ -50,12 +50,12 @@ describe('User Routes', () => {
 
     })
 
-    describe('GET /users', () => {
+    describe('GET /transactions', () => {
 
-        it('Should Return All Users and data in Response Body must be an Array', async () => {
+        it('Should Return All Transactions and data in Response Body must be an Array', async () => {
 
             const response = await request(app)
-                .get('/v1/users')
+                .get('/v1/transactions')
                 .auth(accessToken, { type: 'bearer' });
 
             expect(response.status).toEqual(200);
@@ -64,16 +64,14 @@ describe('User Routes', () => {
 
             expect(response.body.statusCode).toEqual(200);
 
-            expect(Array.isArray(response.body.data)).toBe(true);
-
-            expect(response.body.data.length).toBeGreaterThan(0)
+            expect(Array.isArray(response.body.data)).toBe(true)
 
         });
 
         it('Should return an UnAuthorized Error Response if an invalid token is passed with the request', async () => {
 
             const response = await request(app)
-                .get('/v1/users')
+                .get('/v1/transactions')
                 .auth('invalidToken', { type: 'bearer' });
 
             expect(response.status).toEqual(401);
@@ -84,27 +82,13 @@ describe('User Routes', () => {
 
     })
 
-    describe('POST /users/register', () => {
+    describe('GET /transactions/reference', () => {
 
-        it('Should return a validation error if request body is empty', async () => {
-
-            const res = await request(app)
-                .post('/v1/users/register')
-                .send();
-
-            expect(res.status).toBe(400);
-
-            expect(res.body.errors).not.toBeNull();
-
-        });
-    })
-
-    describe('GET /users/userinfo', () => {
-
-        it('Should return an unauthorized error if an invalid token is passed with the request', async () => {
+        it('Should return an UnAuthorized Error Response if an invalid token is passed with the request', async () => {
 
             const response = await request(app)
-                .get('/v1/users/userinfo')
+                .get('/v1/transactions/reference')
+                .send({ transactionRef: 'DEBIT: FUNDS-TRANSFER-16775767678859586778' })
                 .auth('invalidToken', { type: 'bearer' });
 
             expect(response.status).toEqual(401);
@@ -113,21 +97,6 @@ describe('User Routes', () => {
 
         });
 
-        it('Should return the user info if a valid token is passed with the request', async () => {
-
-            const response = await request(app)
-                .get('/v1/users/userinfo')
-                .auth(accessToken, { type: 'bearer' });
-
-            expect(response.status).toEqual(200);
-
-            expect(response.body.status).toEqual('success');
-
-            expect(response.body.statusCode).toEqual(200);
-
-            expect(response.body.data).toHaveProperty('email')
-
-        })
     });
 
 })

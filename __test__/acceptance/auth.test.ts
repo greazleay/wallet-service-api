@@ -1,27 +1,43 @@
 import request from 'supertest';
-import { createServer, Server } from 'http';
+import { Server } from 'http';
 import { AppDataSource } from '@/data-source';
 import { App } from '@/app';
 import { ENV } from '@config/configuration';
 
 
 const app = new App().getApp();
-const server: Server = createServer(app);
+let server: Server;
 
-beforeAll(async () => {
+describe('Authentication Routes', () => {
 
-    await AppDataSource.initialize();
-    server.listen(ENV.PORT)
+    beforeAll(async () => {
 
-});
+        await AppDataSource.initialize();
 
-afterAll(async () => {
+        server = app.listen(ENV.PORT);
 
-    await AppDataSource.destroy();
-    server.close()
-})
+        // Fix for EADDRINUSE error during tests
+        server.on('error', (e: NodeJS.ErrnoException) => {
 
-describe('authentication routes', () => {
+            if (e.code === 'EADDRINUSE') {
+
+                setTimeout(() => {
+                    server.close();
+                    server.listen(ENV.PORT);
+                }, 3000);
+
+            }
+        });
+
+    });
+
+    afterAll(async () => {
+
+        await AppDataSource.destroy();
+
+        server.close()
+
+    })
 
     describe('POST /auth/login', () => {
 
@@ -68,7 +84,7 @@ describe('authentication routes', () => {
 
             const response = await request(app)
                 .post('/v1/auth/login')
-                .send({ email: 'valid-email' })
+                .send({ email: 'test@example.com' })
                 .retry(2);
 
             expect(response.status).toEqual(400);
