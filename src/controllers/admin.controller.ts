@@ -3,18 +3,28 @@ import { AdminService } from '@services/admin.service';
 import { validateRequest } from '@helpers/validateRequest';
 import { SuccessResponse } from '@/helpers/successResponse';
 import { EntityIdDto } from '@dtos/common.dto';
+import { pageOptions, paginate } from '@helpers/paginate';
 
 
 export class AdminController {
 
     private readonly adminService = new AdminService()
-    
+
     public getAllTransactions = async (req: Request, res: Response, next: NextFunction) => {
         try {
 
-            const responseData = await this.adminService.findAllTransactions();
+            const { perPage, skip } = pageOptions(req)
 
-            res.status(200).json(new SuccessResponse(200, 'All Transactions', responseData))
+            const { fromCache, allTransactions } = await this.adminService.findAllTransactions(perPage, skip);
+
+            res.status(200).json(new SuccessResponse(
+                200,
+                'All Transactions',
+                {
+                    fromCache,
+                    transactions: paginate(pageOptions(req), allTransactions)
+                }
+            ));
 
         } catch (error) {
             next(error)
@@ -38,9 +48,18 @@ export class AdminController {
     public getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
         try {
 
-            const responseData = await this.adminService.findAllUsers();
+            const { perPage, skip } = pageOptions(req);
 
-            res.status(200).json(new SuccessResponse(200, 'All Users', responseData));
+            const { fromCache, allUsers } = await this.adminService.findAllUsers(perPage, skip);
+
+            res.status(200).json(new SuccessResponse(
+                200,
+                'All Users',
+                {
+                    fromCache,
+                    users: paginate(pageOptions(req), allUsers)
+                }
+            ));
 
         } catch (error) {
             next(error)
@@ -64,9 +83,18 @@ export class AdminController {
     public getAllWallets = async (req: Request, res: Response, next: NextFunction) => {
         try {
 
-            const responseData = await this.adminService.findAllWallets();
+            const { perPage, skip } = pageOptions(req);
 
-            res.status(200).json(new SuccessResponse(200, 'All Wallets', responseData));
+            const { fromCache, allWallets } = await this.adminService.findAllWallets(perPage, skip);
+
+            res.status(200).json(new SuccessResponse(
+                200,
+                'All Wallets',
+                {
+                    fromCache,
+                    wallets: paginate(pageOptions(req), allWallets)
+                }
+            ));
 
         } catch (error) {
             next(error)

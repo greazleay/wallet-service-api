@@ -1,5 +1,4 @@
 import { userRepository, transactionRepository, walletRepository } from '@/data-source';
-import { Transaction } from '@entities/transaction.entity';
 import { NotFoundException } from '@exceptions/common.exceptions';
 import { getCacheKey, setCacheKey } from '@config/cache';
 
@@ -10,21 +9,23 @@ export class AdminService {
     private readonly userRepo: typeof userRepository = userRepository;
     private readonly walletRepo: typeof walletRepository = walletRepository;
 
-    public async findAllTransactions() {
+    public async findAllTransactions(perPage: number, skip: number) {
 
-        const value = await getCacheKey('all_transactions');
+        const value = await getCacheKey(`all_transactions?perPage=${perPage}&skip=${skip}`);
 
         if (value) return { fromCache: true, allTransactions: JSON.parse(value) }
 
-        const allTransactions = await this.transactionRepo.find({
+        const allTransactions = await this.transactionRepo.findAndCount({
             order: {
                 createdAt: 'DESC'
-            }
+            },
+            skip: skip,
+            take: perPage
         });
 
         if (allTransactions.length) {
 
-            await setCacheKey('all_transactions', allTransactions);
+            await setCacheKey(`all_transactions?perPage=${perPage}&skip=${skip}`, allTransactions);
 
             return { fromCache: false, allTransactions };
 
@@ -77,13 +78,13 @@ export class AdminService {
         }
     };
 
-    public async findAllUsers() {
+    public async findAllUsers(perPage: number, skip: number) {
 
-        const value = await getCacheKey('all_users');
+        const value = await getCacheKey(`all_users?perPage=${perPage}&skip=${skip}`);
 
         if (value) return { fromCache: true, allUsers: JSON.parse(value) }
 
-        const allUsers = await this.userRepo.find({
+        const allUsers = await this.userRepo.findAndCount({
             select: {
                 id: true,
                 email: true,
@@ -92,12 +93,14 @@ export class AdminService {
             },
             order: {
                 createdAt: 'DESC'
-            }
+            },
+            skip: skip,
+            take: perPage
         })
 
         if (allUsers.length) {
 
-            await setCacheKey('all_users', allUsers);
+            await setCacheKey(`all_users?perPage=${perPage}&skip=${skip}`, allUsers);
 
             return { fromCache: false, allUsers };
 
@@ -149,13 +152,13 @@ export class AdminService {
         }
     };
 
-    public async findAllWallets() {
+    public async findAllWallets(perPage: number, skip: number) {
 
-        const value = await getCacheKey('all_wallets');
+        const value = await getCacheKey(`all_wallets?perPage=${perPage}&skip=${skip}`);
 
         if (value) return { fromCache: true, allWallets: JSON.parse(value) }
 
-        const allWallets = await this.walletRepo.find({
+        const allWallets = await this.walletRepo.findAndCount({
             select: {
                 id: true,
                 walletNumber: true,
@@ -166,12 +169,14 @@ export class AdminService {
             },
             order: {
                 createdAt: 'DESC'
-            }
+            },
+            skip: skip,
+            take: perPage
         });
 
         if (allWallets.length) {
 
-            await setCacheKey('all_wallets', allWallets);
+            await setCacheKey(`all_wallets?perPage=${perPage}&skip=${skip}`, allWallets);
 
             return { fromCache: false, allWallets };
 
