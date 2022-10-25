@@ -1,13 +1,12 @@
 import { userRepository } from '@/data-source';
 import { UnAuthorizedException } from '@/exceptions/common.exceptions';
-import { SuccessResponse } from '@/helpers/successResponse';
 import { LoginUserDto } from '@dtos/auth.dto';
 
 export class AuthService {
 
     private readonly userRepo: typeof userRepository = userRepository;
 
-    public async login(loginUserDto: LoginUserDto): Promise<SuccessResponse> {
+    public async login(loginUserDto: LoginUserDto): Promise<string> {
 
         const { email, password } = loginUserDto;
 
@@ -21,11 +20,11 @@ export class AuthService {
 
             const authToken = await userExists.generateToken()
 
-            return new SuccessResponse(200, 'Login Successful', authToken)
+            return authToken
 
         } else {
 
             throw new UnAuthorizedException('Invalid Credentials')
         }
-    }
+    };
 }

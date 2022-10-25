@@ -20,20 +20,22 @@ export class UserRouter {
             this.userController.createUser
         );
 
-        /**
-         * THIS ROUTE RETURNS ALL USERS ON THE SERVER.
-         * PLEASE NOTE THAT THE ROUTE IS LEFT OPEN WITHOUT AUTHORIZATION DELIBERATELY FOR THE PURPOSE OF THIS TASK.
-         */
-        this.router.get(
-            '/',
-            passport.authenticate('jwt', { session: false }),
-            this.userController.getAllUsers
-        );
-
         this.router.get(
             '/userinfo',
             passport.authenticate('jwt', { session: false }),
             this.userController.getCurrentUser
+        );
+
+        this.router.patch(
+            '/:id',
+            passport.authenticate('jwt', { session: false }),
+            this.userController.updateUser
+        );
+
+        this.router.delete(
+            '/:id',
+            passport.authenticate('jwt', { session: false }),
+            this.userController.deleteUser
         );
 
     };

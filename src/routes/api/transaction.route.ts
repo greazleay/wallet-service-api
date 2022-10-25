@@ -15,43 +15,26 @@ export class TransactionRouter {
 
     private registerRoutes() {
 
-
-        /**
-         * THIS ROUTE RETURNS ALL TRANSACTIONS ON THE SERVER.
-         * PLEASE NOTE THAT THE ROUTE IS LEFT OPEN WITHOUT AUTHORIZATION DELIBERATELY FOR THE PURPOSE OF THIS TASK.
-         */
+        this.router.use(passport.authenticate('jwt', { session: false }))
+        
         this.router.get(
-            '/',
-            passport.authenticate('jwt', { session: false }),
-            this.transactionController.getAllTransactions
+            '/wallet',
+            this.transactionController.getAllOnWalletByUser
         );
 
         this.router.get(
-            '/account',
-            passport.authenticate('jwt', { session: false }),
-            this.transactionController.getAllOnAccountByUser
+            '/wallet/date',
+            this.transactionController.getAllOnWalletByUserAndDate
         );
 
         this.router.get(
-            '/account-date',
-            passport.authenticate('jwt', { session: false }),
-            this.transactionController.getAllOnAccountByUserAndDate
+            '/wallet/date-range',
+            this.transactionController.getAllOnWalletByUserAndDateRange
         );
 
         this.router.get(
             '/reference',
-            passport.authenticate('jwt', { session: false }),
             this.transactionController.getOneByTransactionRef
-        );
-
-        /**
-         * THIS ROUTE RETURNS A TRANSACTION WITH THE GIVEN TRANSACTION ID.
-         * PLEASE NOTE THAT THE ROUTE IS LEFT OPEN WITHOUT AUTHORIZATION DELIBERATELY FOR THE PURPOSE OF THIS TASK.
-         */
-        this.router.get(
-            '/:transactionId',
-            passport.authenticate('jwt', { session: false }),
-            this.transactionController.getOneById
         );
 
     };

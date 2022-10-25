@@ -1,8 +1,9 @@
 import { Request, Response, Router } from 'express';
-import { AccountRouter } from '@routes/api/account.route';
+import { AdminRouter } from './admin.route';
 import { AuthRouter } from '@routes/api/auth.route';
 import { TransactionRouter } from '@routes/api/transaction.route';
 import { UserRouter } from '@routes/api/user.route';
+import { WalletRouter } from '@/routes/api/wallet.route';
 
 
 export class ApiRouter {
@@ -19,10 +20,11 @@ export class ApiRouter {
             message: `HELLO VISITOR, THANK YOU FOR VISITING`
         }));
 
-        this.router.use('/accounts', new AccountRouter().getRoutes());
+        this.router.use('/admin', new AdminRouter().getRoutes());
         this.router.use('/auth', new AuthRouter().getRoutes());
         this.router.use('/transactions', new TransactionRouter().getRoutes());
         this.router.use('/users', new UserRouter().getRoutes());
+        this.router.use('/wallets', new WalletRouter().getRoutes());
     };
 
     public getRoutes() {

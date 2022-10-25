@@ -1,5 +1,5 @@
 {
-  "name": "demo-credit-api",
+  "name": "wallet-service-api",
   "version": "0.0.0",
   "engines": {
     "node": ">=16.15.1"

@@ -1,68 +1,36 @@
 import { Between } from 'typeorm';
 import { transactionRepository } from '@/data-source';
-import { SearchAccountNumberAndDateDto } from '@dtos/transaction.dto';
-import { BadRequestException, ForbiddenException, NotFoundException } from '@exceptions/common.exceptions';
-import { SuccessResponse } from '@helpers/successResponse';
+import {
+    SearchWalletNumberAndDateDto,
+    SearchWalletNumberAndDateRangeDto
+} from '@dtos/transaction.dto';
+import {
+    BadRequestException,
+    ForbiddenException,
+    NotFoundException
+} from '@exceptions/common.exceptions';
+import { Transaction } from '@/entities/transaction.entity';
 
 
 export class TransactionService {
 
     private readonly transactionRepo: typeof transactionRepository = transactionRepository;
 
-    public async findAll(): Promise<SuccessResponse> {
+    public async findOneByTransactionRef(transactionRef: string, userID: string): Promise<Transaction> {
 
-        const allTransactions = await this.transactionRepo.find({
-            order: {
-                createdAt: 'DESC'
-            }
-        });
-
-        if (allTransactions.length) {
-
-            return new SuccessResponse(200, 'All Transactions', allTransactions);
-
-        } else {
-
-            throw new NotFoundException('No Transactions on the Server');
-
-        }
-    };
-
-    public async findOneById(id: string): Promise<SuccessResponse> {
-
-        const account = await this.transactionRepo.findOne({
+        const transaction = await this.transactionRepo.findOne({
             relations: {
-                account: true,
-            },
-            where: { id }
-        });
-
-        if (account) {
-
-            return new SuccessResponse(200, 'Transaction Details', account);
-
-        } else {
-
-            throw new NotFoundException(`Transaction with ID: ${id} not found on this server`)
-        }
-
-    }
-
-    public async findOneByTransactionRef(transactionRef: string, userID: string): Promise<SuccessResponse> {
-
-        const account = await this.transactionRepo.findOne({
-            relations: {
-                account: true
+                wallet: true
             },
             where: {
                 transactionRef,
-                account: { accountHolder: { id: userID } }
+                wallet: { walletHolder: { id: userID } }
             }
         });
 
-        if (account) {
+        if (transaction) {
 
-            return new SuccessResponse(200, 'Transaction Details', account);
+            return transaction;
 
         } else {
 
@@ -71,16 +39,16 @@ export class TransactionService {
 
     };
 
-    public async findAllTransactionsOnAccountByUser(
-        accountNumber: number,
+    public async findAllTransactionsOnWalletByUser(
+        walletNumber: number,
         userID: string
-    ): Promise<SuccessResponse> {
+    ): Promise<Transaction[]> {
 
         const foundTransactions = await this.transactionRepo.find({
             where: {
-                account: {
-                    accountNumber,
-                    accountHolder: { id: userID }
+                wallet: {
+                    walletNumber,
+                    walletHolder: { id: userID }
                 },
             },
             order: {
@@ -90,29 +58,29 @@ export class TransactionService {
 
         if (foundTransactions.length) {
 
-            return new SuccessResponse(200, 'All Transactions on Account', foundTransactions);
+            return foundTransactions;
 
         } else {
 
-            throw new ForbiddenException(`User not allowed to query transactions on Account with accountNumber: ${accountNumber}`)
+            throw new ForbiddenException(`User not allowed to query transactions on Wallet with walletNumber: ${walletNumber}`)
         }
     }
 
-    public async findAllTransactionsOnAccountByUserAndDate(
-        searchDateDto: SearchAccountNumberAndDateDto,
+    public async findAllTransactionsOnWalletByUserAndDate(
+        searchDateDto: SearchWalletNumberAndDateDto,
         userID: string
-    ): Promise<SuccessResponse> {
+    ): Promise<Transaction[]> {
 
-        const { accountNumber, searchDate } = searchDateDto;
+        const { walletNumber, searchDate } = searchDateDto;
 
         const endDate = new Date(searchDate).getTime() + 86400000;
 
         const foundTransactions = await this.transactionRepo.find({
             where: {
                 createdAt: Between(new Date(searchDate), new Date(endDate)),
-                account: {
-                    accountNumber,
-                    accountHolder: { id: userID }
+                wallet: {
+                    walletNumber,
+                    walletHolder: { id: userID }
                 },
             },
             order: {
@@ -122,23 +90,12 @@ export class TransactionService {
 
         if (foundTransactions.length) {
 
-            return new SuccessResponse(
-                200,
-                `All Account Transactions on ${searchDate.toLocaleString(
-                    undefined,
-                    {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                    })
-                }`,
-                foundTransactions
-            );
+            return foundTransactions
 
         } else {
 
             throw new NotFoundException(
-                `No Transaction(s) for Account ${accountNumber} on ${searchDate.toLocaleString(
+                `No Transaction(s) for Wallet ${walletNumber} on ${searchDate.toLocaleString(
                     undefined,
                     {
                         year: 'numeric',
@@ -148,5 +105,38 @@ export class TransactionService {
                 }`
             )
         }
-    }
+    };
+
+    public async findAllTransactionsOnWalletByUserAndDateRange(
+        searchDateDto: SearchWalletNumberAndDateRangeDto,
+        userID: string
+    ): Promise<Transaction[]> {
+
+        const { walletNumber, fromDate, toDate } = searchDateDto;
+
+        const foundTransactions = await this.transactionRepo.find({
+            where: {
+                createdAt: Between(new Date(fromDate), new Date(toDate)),
+                wallet: {
+                    walletNumber,
+                    walletHolder: { id: userID }
+                },
+            },
+            order: {
+                createdAt: 'DESC'
+            }
+        });
+
+        if (foundTransactions.length) {
+
+            return foundTransactions
+
+        } else {
+
+            throw new NotFoundException(
+                `No Transaction(s) for Wallet ${walletNumber} between the specified dates`
+            )
+        }
+    };
+
 }

@@ -1,6 +1,6 @@
 import { BeforeInsert, Column, Entity, ManyToOne } from 'typeorm';
 import { AbstractEntity } from '@entities/abstract.entity';
-import { Account } from '@entities/account.entity';
+import { Wallet } from '@/entities/wallet.entity';
 import {
   TransactionMode,
   TransactionType,
@@ -27,11 +27,11 @@ export class Transaction extends AbstractEntity {
   @Column('enum', { enum: TransactionStatus, default: TransactionStatus.SUCCESSFUL })
   transactionStatus: TransactionStatus;
 
-  @ManyToOne(() => Account, (account) => account.transactions, { nullable: true })
-  account: Account;
+  @ManyToOne(() => Wallet, (wallet) => wallet.transactions, { nullable: true })
+  wallet: Wallet;
 
   @Column('decimal', { precision: 15, scale: 2, default: 0 })
-  accountBalance: number;
+  walletBalance: number;
 
   @Column('varchar', { length: 255, nullable: true })
   transactionRef: string;
@@ -42,7 +42,7 @@ export class Transaction extends AbstractEntity {
   }
 
   public async generateDepositOrWithdrawalTransaction({
-    account,
+    wallet,
     transactionAmount,
     transactionParty,
     isDebit
@@ -56,39 +56,39 @@ export class Transaction extends AbstractEntity {
     this.transactionMode = isDebit ? TransactionMode.DEBIT : TransactionMode.CREDIT;
     this.transactionType = isDebit ? TransactionType.FUNDS_WITHDRAWAL : TransactionType.FUNDS_DEPOSIT;
     this.transactionStatus = TransactionStatus.SUCCESSFUL;
-    this.account = account;
-    this.accountBalance = account.accountBalance;
+    this.wallet = wallet;
+    this.walletBalance = wallet.walletBalance;
   };
 
   public async generateFundsTransferTransaction({
-    debitAccount,
-    creditAccount,
+    debitWallet,
+    creditWallet,
     transferAmount,
     isDebit
   }: IGenerateFundsTransferTransactionParams) {
 
     const {
-      accountBalance: debitAccountBalance,
-      accountName: debitAccountName,
-      accountNumber: debitAccountNumber
-    } = debitAccount;
+      walletBalance: debitWalletBalance,
+      walletName: debitWalletName,
+      walletNumber: debitWalletNumber
+    } = debitWallet;
 
     const {
-      accountBalance: creditAccountBalance,
-      accountName: creditAccountName,
-      accountNumber: creditAccountNumber
-    } = creditAccount;
+      walletBalance: creditWalletBalance,
+      walletName: creditWalletName,
+      walletNumber: creditWalletNumber
+    } = creditWallet;
 
-    const creditDescription = `CREDIT: Funds Transfer of ${transferAmount} from ${debitAccountName} - ${debitAccountNumber}`
-    const debitDescription = `DEBIT: Funds Transfer of ${transferAmount} to ${creditAccountName} - ${creditAccountNumber}`
+    const creditDescription = `CREDIT: Funds Transfer of ${transferAmount} from ${debitWalletName} - ${debitWalletNumber}`
+    const debitDescription = `DEBIT: Funds Transfer of ${transferAmount} to ${creditWalletName} - ${creditWalletNumber}`
 
     this.description = isDebit ? debitDescription : creditDescription;
     this.transactionAmount = transferAmount;
     this.transactionMode = isDebit ? TransactionMode.DEBIT : TransactionMode.CREDIT;
     this.transactionType = TransactionType.FUNDS_TRANSFER;
     this.transactionStatus = TransactionStatus.SUCCESSFUL;
-    this.account = isDebit ? debitAccount : creditAccount;
-    this.accountBalance = isDebit ? debitAccountBalance : creditAccountBalance;
+    this.wallet = isDebit ? debitWallet : creditWallet;
+    this.walletBalance = isDebit ? debitWalletBalance : creditWalletBalance;
   }
 
 }

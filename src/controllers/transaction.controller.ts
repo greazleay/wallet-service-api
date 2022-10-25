@@ -1,40 +1,19 @@
-import { Request, Response, NextFunction } from 'express'
+import { Response, NextFunction } from 'express'
 import { TransactionService } from '@services/transaction.service';
 import { validateRequest } from '@helpers/validateRequest';
-import { SearchAccountNumberAndDateDto, TransactionIdDto, TransactionRefDto } from '@dtos/transaction.dto';
-import { AccountNumberDto } from '@/dtos/account.dto';
-import { RequestWithUser } from '@/interfaces/route.interface';
+import { 
+    SearchWalletNumberAndDateDto, 
+    SearchWalletNumberAndDateRangeDto, 
+    TransactionRefDto 
+} from '@dtos/transaction.dto';
+import { WalletNumberDto } from '@dtos/wallet.dto';
+import { RequestWithUser } from '@interfaces/route.interface';
+import { SuccessResponse } from '@helpers/successResponse';
 
 
 export class TransactionController {
 
-    private readonly transactionService = new TransactionService()
-
-    public getAllTransactions = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-
-            const responseData = await this.transactionService.findAll();
-
-            res.status(200).json(responseData)
-
-        } catch (error) {
-            next(error)
-        }
-    };
-
-    public getOneById = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-
-            const { transactionId } = await validateRequest(TransactionIdDto, req.params);
-
-            const responseData = await this.transactionService.findOneById(transactionId);
-
-            res.status(200).json(responseData);
-
-        } catch (error) {
-            next(error)
-        }
-    };
+    private readonly transactionService = new TransactionService();
 
     public getOneByTransactionRef = async (req: RequestWithUser, res: Response, next: NextFunction) => {
         try {
@@ -45,43 +24,70 @@ export class TransactionController {
 
             const responseData = await this.transactionService.findOneByTransactionRef(transactionRef, id);
 
-            res.status(200).json(responseData);
+            res.status(200).json(new SuccessResponse(200, 'Transaction Details', responseData));
 
         } catch (error) {
             next(error)
         }
     };
 
-    public getAllOnAccountByUser = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+    public getAllOnWalletByUser = async (req: RequestWithUser, res: Response, next: NextFunction) => {
         try {
 
             const { id } = req.user;
 
-            const { accountNumber } = await validateRequest(AccountNumberDto, req.body);
+            const { walletNumber } = await validateRequest(WalletNumberDto, req.body);
 
-            const responseData = await this.transactionService.findAllTransactionsOnAccountByUser(accountNumber, id);
+            const responseData = await this.transactionService.findAllTransactionsOnWalletByUser(walletNumber, id);
 
-            res.status(200).json(responseData);
+            res.status(200).json(new SuccessResponse(200, 'All Transactions on Wallet', responseData));
 
         } catch (error) {
-            console.log(error)
             next(error)
         }
     };
 
-    public getAllOnAccountByUserAndDate = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+    public getAllOnWalletByUserAndDate = async (req: RequestWithUser, res: Response, next: NextFunction) => {
         try {
 
             const { id } = req.user;
 
-            const searchDateDto = await validateRequest(SearchAccountNumberAndDateDto, req.body);
+            const searchDateDto = await validateRequest(SearchWalletNumberAndDateDto, req.body);
 
-            const responseData = await this.transactionService.findAllTransactionsOnAccountByUserAndDate(searchDateDto, id);
+            const responseData = await this.transactionService.findAllTransactionsOnWalletByUserAndDate(searchDateDto, id);
 
-            res.status(200).json(responseData);
+            res.status(200).json(new SuccessResponse(
+                200,
+                `All Wallet Transactions on ${searchDateDto.searchDate.toLocaleString(
+                    undefined,
+                    {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    })
+                }`,
+                responseData
+            ));
 
         } catch (error) {
             next(error)
         }
     };
+
+    public getAllOnWalletByUserAndDateRange = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+        try {
+
+            const { id } = req.user;
+
+            const searchDateRangeDto = await validateRequest(SearchWalletNumberAndDateRangeDto, req.body);
+
+            const responseData = await this.transactionService.findAllTransactionsOnWalletByUserAndDate(searchDateRangeDto, id);
+
+            res.status(200).json(new SuccessResponse(200, 'All Transactions between the search date range', responseData));
+
+        } catch (error) {
+            next(error)
+        }
+    };
+
 }

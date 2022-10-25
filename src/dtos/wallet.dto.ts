@@ -11,32 +11,32 @@ import {
 } from 'class-validator';
 
 
-export class OpenAccountDto {
+export class CreateWalletDto {
 
     @Transform(({ value }) => String(value).toUpperCase())
     @Length(3)
     @IsString()
     @IsNotEmpty()
-    accountName: string;
+    walletName: string;
 
 };
 
-export class AccountIdDto {
+export class WalletIdDto {
 
     @IsUUID(4)
-    readonly accountId: string;
+    readonly walletId: string;
 };
 
-export class AccountNumberDto {
+export class WalletNumberDto {
 
     @Max(9999999999)
     @Min(1000000000)
     @IsInt()
     @IsNotEmpty()
-    readonly accountNumber: number;
+    readonly walletNumber: number;
 };
 
-export class WithdrawFundsDto extends AccountNumberDto {
+export class WithdrawFundsDto extends WalletNumberDto {
 
     @Min(1, { message: 'Transaction Amount must be greater than Zero' })
     @IsInt()
@@ -52,7 +52,7 @@ export class DepositFundsDto extends WithdrawFundsDto {
     @Transform(({ value }) => String(value).toUpperCase())
     @IsString()
     @IsNotEmpty()
-    accountName: string
+    walletName: string
 }
 
 export class TransferFundsDto {
@@ -66,16 +66,16 @@ export class TransferFundsDto {
     @Min(1000000000)
     @IsInt()
     @IsNotEmpty()
-    debitAccountNumber: number;
+    debitWalletNumber: number;
 
     @Max(9999999999)
     @Min(1000000000)
     @IsInt()
     @IsNotEmpty()
-    creditAccountNumber: number;
+    creditWalletNumber: number;
 
     @Transform(({ value }) => String(value).toUpperCase())
-    @MinLength(2, { message: 'Transfer Account Name Must have more than 1 character' })
+    @MinLength(2, { message: 'Transfer Wallet Name Must have more than 1 character' })
     @IsString()
-    creditAccountName: string;
+    creditWalletName: string;
 }

@@ -31,6 +31,13 @@ export class CreateUserDto {
     readonly password: string;
 }
 
+export class UpdateUserDto {
+
+    @IsString()
+    @IsNotEmpty()
+    readonly fullName: string; 
+}
+
 
 export class ValidUserIdDto {
 

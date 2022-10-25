@@ -1,13 +1,13 @@
-import { CreateUserDto } from '@dtos/user.dto';
+import { CreateUserDto, UpdateUserDto } from '@dtos/user.dto';
 import { userRepository } from '@/data-source';
-import { ConflictException } from '@exceptions/common.exceptions';
-import { SuccessResponse } from '@helpers/successResponse'
+import { ConflictException, NotFoundException } from '@exceptions/common.exceptions';
+import { User } from '@/entities/user.entity';
 
 export class UserService {
 
     private readonly userRepo: typeof userRepository = userRepository;
 
-    public async create(createUserDto: CreateUserDto): Promise<SuccessResponse> {
+    public async create(createUserDto: CreateUserDto): Promise<User> {
 
         const { email } = createUserDto;
 
@@ -20,24 +20,42 @@ export class UserService {
         const newUser = this.userRepo.create(createUserDto);
         await this.userRepo.save(newUser);
 
-        return new SuccessResponse(201, 'User Created Successfully');
+        return newUser;
 
+    };
+
+    public async updateUser(id: string, updateUserDto: UpdateUserDto): Promise<User> {
+
+        const userToUpdate = await this.userRepo.findOneBy({ id });
+
+        if (userToUpdate) {
+            
+            const updatedUser = Object.assign(userToUpdate, updateUserDto)
+
+            await this.userRepo.save(updatedUser)
+
+            return updatedUser
+
+        } else {
+            
+            throw new NotFoundException(`User with id: ${id} not found`)
+        }
     }
 
-    public async findAll(): Promise<SuccessResponse> {
+    public async deleteUser(id: string): Promise<boolean> {
 
-        const allUsers = await this.userRepo.find({
-            select: {
-                id: true,
-                email: true,
-                fullName: true,
-                createdAt: true
-            },
-            order: {
-                createdAt: 'DESC'
-            }
-        })
+        const userToDelete = await this.userRepo.findOneBy({ id });
 
-        return new SuccessResponse(200, 'All Users', allUsers);
+        if (userToDelete) {
+
+            await this.userRepo.remove(userToDelete)
+
+            return true
+
+        } else {
+            
+            throw new NotFoundException(`User with id: ${id} not found`)
+        }
     }
+
 }

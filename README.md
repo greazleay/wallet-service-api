@@ -1,51 +1,51 @@
-# Demo Credit API
+# Wallet Service API
 
 ## About
 
-This is a Demo Wallet Service Provider designed with a self-self approach, Users can open account(s) while an existing account holder can perform the following:
+This is a Wallet Service Provider designed with a self-self approach, Users can open wallet(s) while an existing wallet holder can perform the following:
 
-* Open one or more accounts
-* Check their account balance
-* Deposit Funds into their Account(s)
-* Withdraw Funds from their Account(s)
-* Transfer Funds Between Internal Account(s)
+* Open one or more wallets
+* Check their wallet balance
+* Deposit Funds into their Wallet(s)
+* Withdraw Funds from their Wallet(s)
+* Transfer Funds Between Internal Wallet(s)
 * View All their transaction history
 
-#### ACCOUNT OPENING:
+#### OPEN WALLETS:
 
-* Users can open and operate multiple accounts.
-* 10-digit Account Numbers are automatically generated internally when opening new accounts.
-* Authentication is required for opening new accounts and the account is automatically tagged to the user opening the account.
+* Users can open and operate multiple wallets.
+* 10-digit Wallet Numbers are automatically generated internally when opening new wallets.
+* Authentication is required for opening new wallets and the wallet is automatically tagged to the user opening the wallet.
 
 #### DEPOSIT FUNDS:
 
-* Users can deposit funds into their accounts.
-* Checks are in place to validate the account name and account number supplied for the transaction.
-* Credit Transaction Details are automatically generated for the deposit and mapped to the credited account.
+* Users can deposit funds into their wallets.
+* Checks are in place to validate the wallet name and wallet number supplied for the transaction.
+* Credit Transaction Details are automatically generated for the deposit and mapped to the credited wallet.
 * Authentication is required to perform this operation.
 
 #### WITHDRAW FUNDS:
 
-* Users can withdraw funds from their accounts.
-* Users can only withdraw funds from accounts belonging to them.
-* Checks are in place to validate the account name and account number supplied for the transaction.
-* A transaction would only be successful if the debit account balance is greater than the amount to withdraw.
-* Debit Transaction Details are automatically generated for the deposit and mapped to the debitted account.
+* Users can withdraw funds from their wallets.
+* Users can only withdraw funds from wallets belonging to them.
+* Checks are in place to validate the wallet name and wallet number supplied for the transaction.
+* A transaction would only be successful if the debit wallet balance is greater than the amount to withdraw.
+* Debit Transaction Details are automatically generated for the deposit and mapped to the debitted wallet.
 * Authentication is required to perform this operation
 
 #### TRANSFER FUNDS:
 
-* Users can transfer funds from their accounts to other internal accounts.
-* Users can only transfer funds from accounts belonging to them.
-* Checks are in place to validate the credit and debit account details supplied for the transaction.
-* A transaction would only be successful if the debit account balance is greater than the amount to transfer.
-* Debit Transaction Details are automatically generated against the debitted account for the transfer.
-* Credit Transaction Details are automatically generated against the creditted account for the transfer.
+* Users can transfer funds from their wallets to other internal wallets.
+* Users can only transfer funds from wallets belonging to them.
+* Checks are in place to validate the credit and debit wallet details supplied for the transaction.
+* A transaction would only be successful if the debit wallet balance is greater than the amount to transfer.
+* Debit Transaction Details are automatically generated against the debitted wallet for the transfer.
+* Credit Transaction Details are automatically generated against the creditted wallet for the transfer.
 * Authentication is required to perform this operation
 
 ## Authors
 
-- [Lekan Adetunmbi](https://www.github.com/greazleay)
+- [@greazleay](https://www.github.com/greazleay)
 
 
 ## Tech Stack
@@ -136,58 +136,58 @@ Some of the available routes are listed below:
 | :-------- | :------- | :-------------------------------- |
 | `access_token`      | `string` | **Required**. Valid Access Token |
 
-#### Account Routes
+#### Wallet Routes
 
-##### Open Account
+##### Create Wallet
 
 ```http
-  POST /accounts/open-account
+  POST /wallets/create-wallet
 ```
 
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
 | `access_token`      | `string` | **Required**. Valid Access Token |
-| `accountName` | `string` | **Required**. Name of the account|
+| `walletName` | `string` | **Required**. Name of the Wallet|
 
 ##### Deposit Funds
 
 ```http
-  POST /accounts/deposit-funds
+  POST /wallets/deposit-funds
 ```
 
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
 | `access_token`      | `string` | **Required**. Valid Access Token |
-| `accountNumber` | `number` | **Required**. 10-digit account number|
-| `accountName` | `string` | **Required**. Name of the account|
+| `walletNumber` | `number` | **Required**. 10-digit wallet number|
+| `walletName` | `string` | **Required**. Name of the wallet|
 | `transactionAmount` | `number` | **Required**. Amount to withdraw |
 | `transactionParty` | `string` | **Required**. User making the transaction |
 
 ##### Withdraw Funds
 
 ```http
-  POST /accounts/withdraw-funds
+  POST /wallets/withdraw-funds
 ```
 
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
 | `access_token`      | `string` | **Required**. Valid Access Token |
-| `accountNumber` | `number` | **Required**. 10-digit account number|
+| `walletNumber` | `number` | **Required**. 10-digit wallet number|
 | `transactionAmount` | `number` | **Required**. Amount to withdraw |
 | `transactionParty` | `string` | **Required**. User making the transaction |
 
 ##### Transfer Funds
 
 ```http
-  POST /accounts/transfer-funds
+  POST /wallets/transfer-funds
 ```
 
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
 | `access_token`      | `string` | **Required**. Valid Access Token |
-| `debitAccountNumber` | `number` | **Required**. 10-digit account number to debit|
-| `creditAccountNumber` | `number` | **Required**. 10-digit account number to credit|
-| `creditAccountName` | `string` | **Required**. Account name of the account to credit |
+| `debitWalletNumber` | `number` | **Required**. 10-digit Wallet number to debit|
+| `creditWalletNumber` | `number` | **Required**. 10-digit Wallet number to credit|
+| `creditWalletName` | `string` | **Required**. Name of the Wallet to credit |
 | `transferAmount` | `number` | **Required**. Amount to Transfer |
 
 ## License

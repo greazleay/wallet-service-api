@@ -25,7 +25,8 @@ export const passportConfig = (passport: { use: (arg0: JwtStrategy) => void; }) 
                     id: true,
                     email: true,
                     fullName: true,
-                    lastLogin: true
+                    lastLogin: true,
+                    roles: true
                 },
                 where: { id: sub }
             });

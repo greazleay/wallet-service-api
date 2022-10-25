@@ -1,5 +1,14 @@
 import { Transform } from 'class-transformer';
-import { IsDate, IsInt, IsNotEmpty, IsString, IsUUID, Max, Min, MinLength } from 'class-validator';
+import {
+    IsDate,
+    IsInt,
+    IsNotEmpty,
+    IsString,
+    IsUUID,
+    Max,
+    Min,
+    MinLength
+} from 'class-validator';
 
 
 export class TransactionIdDto {
@@ -16,17 +25,37 @@ export class TransactionRefDto {
     readonly transactionRef: string;
 };
 
-export class SearchAccountNumberAndDateDto {
+export class SearchWalletNumberAndDateDto {
 
     @Max(9999999999)
     @Min(1000000000)
     @IsInt()
     @IsNotEmpty()
-    accountNumber: number;
+    walletNumber: number;
 
     @Transform(({ value }) => new Date(value))
     @IsDate()
     @IsNotEmpty()
     readonly searchDate: Date;
+
+}
+
+export class SearchWalletNumberAndDateRangeDto {
+
+    @Max(9999999999)
+    @Min(1000000000)
+    @IsInt()
+    @IsNotEmpty()
+    walletNumber: number;
+
+    @Transform(({ value }) => new Date(value))
+    @IsDate()
+    @IsNotEmpty()
+    readonly fromDate: Date;
+
+    @Transform(({ value }) => new Date(value))
+    @IsDate()
+    @IsNotEmpty()
+    readonly toDate: Date;
 
 }

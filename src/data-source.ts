@@ -1,5 +1,5 @@
 import { DataSource } from 'typeorm';
-import { Account } from './entities/account.entity';
+import { Wallet } from './entities/wallet.entity';
 import { Transaction } from '@entities/transaction.entity';
 import { User } from '@entities/user.entity';
 import { ENV } from '@config/configuration';
@@ -11,7 +11,7 @@ export const AppDataSource = new DataSource({
     username: ENV.DB_USERNAME,
     password: ENV.DB_PASSWORD,
     database: ENV.DB_DATABASE,
-    entities: [Account, Transaction, User],
+    entities: [Wallet, Transaction, User],
     migrations: ['src/migrations/*.ts'],
     synchronize: false,
     logging: false,
@@ -23,6 +23,6 @@ export const AppDataSource = new DataSource({
 });
 
 export const entityManager = AppDataSource.manager;
-export const accountRepository = AppDataSource.getRepository(Account);
 export const transactionRepository = AppDataSource.getRepository(Transaction);
 export const userRepository = AppDataSource.getRepository(User);
+export const walletRepository = AppDataSource.getRepository(Wallet);

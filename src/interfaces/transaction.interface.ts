@@ -1,4 +1,4 @@
-import { Account } from '@entities/account.entity'
+import { Wallet } from '@/entities/wallet.entity'
 
 export enum TransactionMode {
     DEBIT = 'DEBIT',
@@ -17,15 +17,15 @@ export enum TransactionStatus {
 }
 
 export interface IGenerateDepositOrWithdrawalTransactionParams {
-    account: Account,
+    wallet: Wallet,
     transactionAmount: number,
     transactionParty: string,
     isDebit: boolean
 }
 
 export interface IGenerateFundsTransferTransactionParams {
-    debitAccount: Account,
-    creditAccount: Account,
+    debitWallet: Wallet,
+    creditWallet: Wallet,
     transferAmount: number,
     isDebit: boolean
 }

@@ -3,8 +3,9 @@ import { compare, hash } from 'bcrypt';
 import { Exclude } from 'class-transformer';
 import { sign } from 'jsonwebtoken';
 import { AbstractEntity } from '@entities/abstract.entity';
-import { Account } from '@entities/account.entity';
+import { Wallet } from '@entities/wallet.entity';
 import { ENV } from '@config/configuration';
+import { Role } from '@interfaces/user.interface';
 
 
 @Entity()
@@ -30,8 +31,16 @@ export class User extends AbstractEntity {
     @Column('datetime', { nullable: true })
     lastLogin: Date;
 
-    @OneToMany(() => Account, account => account.accountHolder)
-    accounts: Account[];
+    @Column('set', {
+        enum: Role,
+        default: [Role.USER]
+    })
+    roles: Role[];
+
+    @OneToMany(() => Wallet, wallet => wallet.walletHolder,
+        { cascade: ['remove'] }
+    )
+    wallets: Wallet[];
 
     @BeforeInsert()
     async hashPassword() {
