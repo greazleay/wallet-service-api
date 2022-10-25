@@ -11,9 +11,9 @@ This is a Wallet Service Provider designed with a self-self approach, Users can 
 * Transfer Funds Between Internal Wallet(s)
 * View All their transaction history
 
-#### OPEN WALLETS:
+#### CREATE WALLETS:
 
-* Users can open and operate multiple wallets.
+* Users can create and operate multiple wallets.
 * 10-digit Wallet Numbers are automatically generated internally when opening new wallets.
 * Authentication is required for opening new wallets and the wallet is automatically tagged to the user opening the wallet.
 
@@ -60,6 +60,8 @@ This is a Wallet Service Provider designed with a self-self approach, Users can 
 * [Passportjs](https://www.passportjs.org/)
 * [Passport-Jwt](https://www.passportjs.org/packages/passport-jwt/)
 * [Jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken)
+* [Redis](https://redis.io/)
+* [WinstonJS](https://github.com/winstonjs/winston)
 * [Jest](https://jestjs.io/)
 * [Supertest](https://www.npmjs.com/package/supertest)
 
@@ -141,7 +143,7 @@ Some of the available routes are listed below:
 ##### Create Wallet
 
 ```http
-  POST /wallets/create-wallet
+  POST /wallets
 ```
 
 | Parameter | Type     | Description                       |
@@ -152,7 +154,7 @@ Some of the available routes are listed below:
 ##### Deposit Funds
 
 ```http
-  POST /wallets/deposit-funds
+  POST /wallets/deposit
 ```
 
 | Parameter | Type     | Description                       |
@@ -166,7 +168,7 @@ Some of the available routes are listed below:
 ##### Withdraw Funds
 
 ```http
-  POST /wallets/withdraw-funds
+  POST /wallets/withdraw
 ```
 
 | Parameter | Type     | Description                       |
@@ -179,7 +181,7 @@ Some of the available routes are listed below:
 ##### Transfer Funds
 
 ```http
-  POST /wallets/transfer-funds
+  POST /wallets/transfer
 ```
 
 | Parameter | Type     | Description                       |

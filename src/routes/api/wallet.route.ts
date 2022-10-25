@@ -23,17 +23,17 @@ export class WalletRouter {
         );
 
         this.router.post(
-            '/deposit-funds',
+            '/deposit',
             this.walletController.depositFunds
         );
 
         this.router.post(
-            '/withdraw-funds',
+            '/withdraw',
             this.walletController.withdrawFunds
         );
 
         this.router.post(
-            '/transfer-funds',
+            '/transfer',
             this.walletController.transferFunds
         );
 
@@ -48,7 +48,7 @@ export class WalletRouter {
         );
 
         this.router.get(
-            '/check-balance',
+            '/balance',
             this.walletController.getWalletBalance
         );
 

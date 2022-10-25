@@ -28,7 +28,7 @@ export class AdminController {
 
             const responseData = await this.adminService.findTransactionById(id);
 
-            res.status(200).json(responseData);
+            res.status(200).json(new SuccessResponse(200, `Transaction with ID: ${id} Retrieved`, responseData));
 
         } catch (error) {
             next(error)
@@ -54,7 +54,7 @@ export class AdminController {
 
             const responseData = await this.adminService.findUserById(id);
 
-            res.status(200).json(responseData);
+            res.status(200).json(new SuccessResponse(200, `User with ID: ${id} Retrieved`, responseData));
 
         } catch (error) {
             next(error)
@@ -80,7 +80,7 @@ export class AdminController {
 
             const responseData = await this.adminService.findWalletById(id);
 
-            res.status(200).json(responseData);
+            res.status(200).json(new SuccessResponse(200, `Wallet with ID: ${id} Retrieved`, responseData));
 
         } catch (error) {
             next(error)

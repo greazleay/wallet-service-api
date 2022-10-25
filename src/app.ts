@@ -12,7 +12,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import { HttpException } from '@exceptions/http.exceptions'
-import { ENV, corsOptions } from '@config/configuration';
+import { ENV, corsOptions, apiLimiter } from '@config/configuration';
 
 // Import Configs
 import { passportConfig } from '@middlewares/passport';
@@ -47,6 +47,7 @@ export class App {
             .use(cors(corsOptions))
             .use(helmet())
             .use(compression())
+            .use(apiLimiter)
     }
 
     private initializeRoutes() {

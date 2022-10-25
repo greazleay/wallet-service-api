@@ -1,6 +1,7 @@
 import { cleanEnv, num, str } from 'envalid';
 import { config } from 'dotenv';
 import { CorsOptions } from 'cors';
+import rateLimit from 'express-rate-limit'
 
 config();
 
@@ -17,6 +18,12 @@ export const ENV = cleanEnv(process.env, {
     COOKIE_SECRET: str(),
     ACCESS_TOKEN_SECRET: str(),
 
+    LOGTAIL_SOURCE_TOKEN: str(),
+
+    REDIS_HOST: str(),
+    REDIS_USERNAME: str(),
+    REDIS_PASSWORD: str()
+
 });
 
 const whitelist = ['http://localhost:3000'];
@@ -31,3 +38,13 @@ export const corsOptions: CorsOptions = {
         }
     }
 };
+
+export const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // limit each IP to 100 requests per windowMs
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: 'Too many requests, please try again later.',
+    skipSuccessfulRequests: true,
+    skip: (req, res) => whitelist.includes(req.headers.origin as string)
+})
