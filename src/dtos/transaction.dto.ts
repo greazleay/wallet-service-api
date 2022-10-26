@@ -51,11 +51,11 @@ export class SearchWalletNumberAndDateRangeDto {
     @Transform(({ value }) => new Date(value))
     @IsDate()
     @IsNotEmpty()
-    readonly fromDate: Date;
+    readonly startDate: Date;
 
     @Transform(({ value }) => new Date(value))
     @IsDate()
     @IsNotEmpty()
-    readonly toDate: Date;
+    readonly endDate: Date;
 
 }

@@ -3,6 +3,7 @@ import { Wallet } from './entities/wallet.entity';
 import { Transaction } from '@entities/transaction.entity';
 import { User } from '@entities/user.entity';
 import { ENV } from '@config/configuration';
+import { ResetToken } from './entities/resetToken.entity';
 
 export const AppDataSource = new DataSource({
     type: 'mysql',
@@ -11,7 +12,7 @@ export const AppDataSource = new DataSource({
     username: ENV.DB_USERNAME,
     password: ENV.DB_PASSWORD,
     database: ENV.DB_DATABASE,
-    entities: [Wallet, Transaction, User],
+    entities: [ResetToken, Transaction, User, Wallet],
     migrations: ['src/migrations/*.ts'],
     synchronize: false,
     logging: false,
@@ -23,6 +24,7 @@ export const AppDataSource = new DataSource({
 });
 
 export const entityManager = AppDataSource.manager;
+export const resetTokenRepository = AppDataSource.getRepository(ResetToken);
 export const transactionRepository = AppDataSource.getRepository(Transaction);
 export const userRepository = AppDataSource.getRepository(User);
 export const walletRepository = AppDataSource.getRepository(Wallet);

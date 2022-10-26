@@ -1,0 +1,1 @@
+export const frontEndUrl = 'http://localhost:3000'  // TEMPORARY VALUE

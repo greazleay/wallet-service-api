@@ -108,15 +108,15 @@ export class TransactionService {
     };
 
     public async findAllTransactionsOnWalletByUserAndDateRange(
-        searchDateDto: SearchWalletNumberAndDateRangeDto,
+        ssearchDateRangeDto: SearchWalletNumberAndDateRangeDto,
         userID: string
     ): Promise<Transaction[]> {
 
-        const { walletNumber, fromDate, toDate } = searchDateDto;
+        const { walletNumber, startDate, endDate } = ssearchDateRangeDto;
 
         const foundTransactions = await this.transactionRepo.find({
             where: {
-                createdAt: Between(new Date(fromDate), new Date(toDate)),
+                createdAt: Between(new Date(startDate), new Date(endDate)),
                 wallet: {
                     walletNumber,
                     walletHolder: { id: userID }

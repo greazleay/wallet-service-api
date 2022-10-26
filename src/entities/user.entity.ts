@@ -49,7 +49,7 @@ export class User extends AbstractEntity {
 
     public async isPasswordValid(password: string): Promise<boolean> {
         return await compare(password, this.password);
-    }
+    };
 
     public async generateToken() {
 
@@ -63,6 +63,10 @@ export class User extends AbstractEntity {
         };
 
         return sign(payload, ENV.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
-    }
+    };
 
+    public async updatePassword(password: string) {
+        this.password = await hash(password, 10);
+        await this.save()
+    };
 }

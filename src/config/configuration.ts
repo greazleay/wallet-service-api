@@ -22,7 +22,11 @@ export const ENV = cleanEnv(process.env, {
 
     REDIS_HOST: str(),
     REDIS_USERNAME: str(),
-    REDIS_PASSWORD: str()
+    REDIS_PASSWORD: str(),
+
+    EMAIL_HOST: str(),
+    EMAIL_PORT: num(),
+    EMAIL_API_KEY: str()
 
 });
 
