@@ -1,19 +1,25 @@
 import { Response, NextFunction } from 'express'
 import { TransactionService } from '@services/transaction.service';
 import { validateRequest } from '@helpers/validateRequest';
-import { 
-    SearchWalletNumberAndDateDto, 
-    SearchWalletNumberAndDateRangeDto, 
-    TransactionRefDto 
+import {
+    SearchWalletNumberAndDateDto,
+    SearchWalletNumberAndDateRangeDto,
+    TransactionRefDto
 } from '@dtos/transaction.dto';
 import { WalletNumberDto } from '@dtos/wallet.dto';
 import { RequestWithUser } from '@interfaces/route.interface';
 import { SuccessResponse } from '@helpers/successResponse';
+import { LoggerException } from '@exceptions/common.exceptions';
+import { logger } from '@helpers/logger';
 
 
 export class TransactionController {
 
-    private readonly transactionService = new TransactionService();
+    private readonly transactionService: TransactionService;
+
+    constructor() {
+        this.transactionService = new TransactionService();
+    }
 
     public getOneByTransactionRef = async (req: RequestWithUser, res: Response, next: NextFunction) => {
         try {
@@ -26,7 +32,8 @@ export class TransactionController {
 
             res.status(200).json(new SuccessResponse(200, 'Transaction Details', responseData));
 
-        } catch (error) {
+        } catch (error: any) {
+            logger.error(JSON.stringify(new LoggerException(error, req)), error);
             next(error)
         }
     };
@@ -42,7 +49,8 @@ export class TransactionController {
 
             res.status(200).json(new SuccessResponse(200, 'All Transactions on Wallet', responseData));
 
-        } catch (error) {
+        } catch (error: any) {
+            logger.error(JSON.stringify(new LoggerException(error, req)), error);
             next(error)
         }
     };
@@ -69,7 +77,8 @@ export class TransactionController {
                 responseData
             ));
 
-        } catch (error) {
+        } catch (error: any) {
+            logger.error(JSON.stringify(new LoggerException(error, req)), error);
             next(error)
         }
     };
@@ -85,7 +94,8 @@ export class TransactionController {
 
             res.status(200).json(new SuccessResponse(200, 'All Transactions between the search date range', responseData));
 
-        } catch (error) {
+        } catch (error: any) {
+            logger.error(JSON.stringify(new LoggerException(error, req)), error);
             next(error)
         }
     };

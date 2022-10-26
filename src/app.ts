@@ -20,13 +20,16 @@ import { passportConfig } from '@middlewares/passport';
 // Import Routes
 import { ApiRouter } from '@routes/api/api.route';
 import { IndexRouter } from '@routes/index.route';
+import { stream } from './helpers/logger';
 
 
 export class App {
 
-    private readonly app: Application = express();
+    private readonly app: Application;
 
     constructor() {
+
+        this.app = express();
 
         // Load Passport configuration
         passportConfig(passport);
@@ -39,7 +42,7 @@ export class App {
     private initializeMiddlewares() {
 
         this.app
-            .use(morgan('dev'))
+            .use(morgan('combined', { stream }))
             .use(express.json({ limit: '16mb' }))
             .use(express.urlencoded({ limit: '16mb', extended: true }))
             .use(passport.initialize())

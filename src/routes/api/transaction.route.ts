@@ -6,16 +6,18 @@ import { TransactionController } from '@controllers/transaction.controller';
 
 export class TransactionRouter {
 
-    private readonly router: CustomIRouter = Router();
-    private readonly transactionController = new TransactionController()
+    private readonly router: CustomIRouter;
+    private readonly transactionController: TransactionController
 
     constructor() {
+        this.router = Router();
+        this.transactionController = new TransactionController();
         this.registerRoutes()
     }
 
     private registerRoutes() {
 
-        this.router.use(passport.authenticate('jwt', { session: false }))
+        this.router.use(passport.authenticate('jwt', { session: false }));
         
         this.router.get(
             '/wallet',

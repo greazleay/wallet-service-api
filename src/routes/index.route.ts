@@ -2,9 +2,10 @@ import { Request, Response, Router } from 'express';
 
 export class IndexRouter {
 
-    private router: Router = Router();
+    private router: Router;
 
     constructor() {
+        this.router = Router();
         this.registerRoutes();
     }
 

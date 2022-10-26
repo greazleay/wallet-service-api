@@ -7,10 +7,12 @@ import { Authorize } from '@/middlewares/authorize';
 
 export class AdminRouter {
 
-    private readonly router: CustomIRouter = Router();
-    private readonly adminController = new AdminController();
+    private readonly router: CustomIRouter;
+    private readonly adminController: AdminController;
 
     constructor() {
+        this.router = Router();
+        this.adminController = new AdminController();
         this.registerRoutes()
     }
 

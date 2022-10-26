@@ -6,10 +6,12 @@ import { WalletController } from '@controllers/wallet.controller';
 
 export class WalletRouter {
 
-    private readonly router: CustomIRouter = Router();
-    private readonly walletController = new WalletController()
+    private readonly router: CustomIRouter;
+    private readonly walletController: WalletController
 
     constructor() {
+        this.router = Router();
+        this.walletController = new WalletController();
         this.registerRoutes()
     }
 

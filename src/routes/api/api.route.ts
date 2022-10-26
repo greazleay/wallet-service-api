@@ -8,9 +8,10 @@ import { WalletRouter } from '@/routes/api/wallet.route';
 
 export class ApiRouter {
 
-    private router: Router = Router();
+    private readonly router: Router;
 
     constructor() {
+        this.router = Router()
         this.registerRoutes()
     }
 

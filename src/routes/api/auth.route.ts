@@ -4,11 +4,13 @@ import { AuthController } from '@controllers/auth.controller';
 
 export class AuthRouter {
 
-    private router: CustomIRouter = Router();
-    private authController = new AuthController();
+    private readonly router: CustomIRouter;
+    private readonly authController: AuthController;
 
     constructor() {
-        this.registerRoutes()
+        this.router = Router();
+        this.authController = new AuthController();
+        this.registerRoutes();
     }
 
     private registerRoutes() {

@@ -4,11 +4,17 @@ import { validateRequest } from '@helpers/validateRequest';
 import { SuccessResponse } from '@/helpers/successResponse';
 import { EntityIdDto } from '@dtos/common.dto';
 import { pageOptions, paginate } from '@helpers/paginate';
+import { logger } from '@helpers/logger';
+import { LoggerException } from '@exceptions/common.exceptions';
 
 
 export class AdminController {
 
-    private readonly adminService = new AdminService()
+    private readonly adminService: AdminService;
+    
+    constructor() {
+        this.adminService = new AdminService()
+    }
 
     public getAllTransactions = async (req: Request, res: Response, next: NextFunction) => {
         try {
@@ -26,7 +32,8 @@ export class AdminController {
                 }
             ));
 
-        } catch (error) {
+        } catch (error: any) {
+            logger.error(JSON.stringify(new LoggerException(error, req)), error);
             next(error)
         }
     };
@@ -40,7 +47,8 @@ export class AdminController {
 
             res.status(200).json(new SuccessResponse(200, `Transaction with ID: ${id} Retrieved`, responseData));
 
-        } catch (error) {
+        } catch (error: any) {
+            logger.error(JSON.stringify(new LoggerException(error, req)), error);
             next(error)
         }
     };
@@ -61,7 +69,8 @@ export class AdminController {
                 }
             ));
 
-        } catch (error) {
+        } catch (error: any) {
+            logger.error(JSON.stringify(new LoggerException(error, req)), error);
             next(error)
         }
     };
@@ -75,7 +84,8 @@ export class AdminController {
 
             res.status(200).json(new SuccessResponse(200, `User with ID: ${id} Retrieved`, responseData));
 
-        } catch (error) {
+        } catch (error: any) {
+            logger.error(JSON.stringify(new LoggerException(error, req)), error);
             next(error)
         }
     };
@@ -96,7 +106,8 @@ export class AdminController {
                 }
             ));
 
-        } catch (error) {
+        } catch (error: any) {
+            logger.error(JSON.stringify(new LoggerException(error, req)), error);
             next(error)
         }
     };
@@ -110,7 +121,8 @@ export class AdminController {
 
             res.status(200).json(new SuccessResponse(200, `Wallet with ID: ${id} Retrieved`, responseData));
 
-        } catch (error) {
+        } catch (error: any) {
+            logger.error(JSON.stringify(new LoggerException(error, req)), error);
             next(error)
         }
     };

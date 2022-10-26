@@ -10,11 +10,17 @@ import {
     WithdrawFundsDto
 } from '@/dtos/wallet.dto';
 import { SuccessResponse } from '@helpers/successResponse';
+import { LoggerException } from '@/exceptions/common.exceptions';
+import { logger } from '@/helpers/logger';
 
 
 export class WalletController {
 
-    private readonly walletService: WalletService = new WalletService();
+    private readonly walletService: WalletService;
+
+    constructor() {
+        this.walletService = new WalletService();
+    }
 
     public createWallet = async (req: RequestWithUser, res: Response, next: NextFunction) => {
         try {
@@ -27,7 +33,8 @@ export class WalletController {
 
             res.status(201).json(new SuccessResponse(201, 'Wallet Created', responseData));
 
-        } catch (error) {
+        } catch (error: any) {
+            logger.error(JSON.stringify(new LoggerException(error, req)), error);
             next(error)
         }
     };
@@ -43,7 +50,8 @@ export class WalletController {
 
             res.status(200).json(new SuccessResponse(200, 'Wallet Retrieved By ID', responseData))
 
-        } catch (error) {
+        } catch (error: any) {
+            logger.error(JSON.stringify(new LoggerException(error, req)), error);
             next(error)
         }
     };
@@ -57,8 +65,8 @@ export class WalletController {
 
             res.status(200).json(new SuccessResponse(200, 'All Wallets for User', responseData))
 
-        } catch (error) {
-            console.log(error)
+        } catch (error: any) {
+            logger.error(JSON.stringify(new LoggerException(error, req)), error);
             next(error)
         }
     };
@@ -74,7 +82,8 @@ export class WalletController {
 
             res.status(200).json(new SuccessResponse(200, `Balance on wallet ${walletNumber}`, responseData));
 
-        } catch (error) {
+        } catch (error: any) {
+            logger.error(JSON.stringify(new LoggerException(error, req)), error);
             next(error)
         }
     };
@@ -88,7 +97,8 @@ export class WalletController {
 
             res.status(200).json(new SuccessResponse(200, 'Deposit Successful', responseData));
 
-        } catch (error) {
+        } catch (error: any) {
+            logger.error(JSON.stringify(new LoggerException(error, req)), error);
             next(error)
         }
     };
@@ -104,7 +114,8 @@ export class WalletController {
 
             res.status(200).json(new SuccessResponse(200, 'Withdrawal Successful', responseData));
 
-        } catch (error) {
+        } catch (error: any) {
+            logger.error(JSON.stringify(new LoggerException(error, req)), error);
             next(error)
         }
     }
@@ -120,7 +131,8 @@ export class WalletController {
 
             res.status(200).json(new SuccessResponse(200, 'Funds Transfer Successful', responseData));
 
-        } catch (error) {
+        } catch (error: any) {
+            logger.error(JSON.stringify(new LoggerException(error, req)), error);
             next(error)
         }
     }

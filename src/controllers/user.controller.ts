@@ -4,11 +4,17 @@ import { validateRequest } from '@helpers/validateRequest';
 import { CreateUserDto, UpdateUserDto } from '@dtos/user.dto';
 import { RequestWithUser } from '@interfaces/route.interface';
 import { SuccessResponse } from '@/helpers/successResponse';
+import { LoggerException } from '@/exceptions/common.exceptions';
+import { logger } from '@/helpers/logger';
 
 
 export class UserController {
 
-    private readonly userService: UserService = new UserService();
+    private readonly userService: UserService;
+
+    constructor() {
+        this.userService = new UserService();
+    }
 
     public createUser = async (req: Request, res: Response, next: NextFunction) => {
         try {
@@ -19,7 +25,8 @@ export class UserController {
 
             res.status(201).json(new SuccessResponse(201, 'User Created Successfully', responseData));
 
-        } catch (error) {
+        } catch (error: any) {
+            logger.error(JSON.stringify(new LoggerException(error, req)), error);
             next(error)
         }
     }
@@ -29,7 +36,8 @@ export class UserController {
 
             res.status(200).json(new SuccessResponse(200, 'User Info', req.user));
 
-        } catch (error) {
+        } catch (error: any) {
+            logger.error(JSON.stringify(new LoggerException(error, req)), error);
             next(error)
         }
     }
@@ -45,7 +53,8 @@ export class UserController {
 
             res.status(200).json(new SuccessResponse(200, 'User Updated', responseData));
 
-        } catch (error) {
+        } catch (error: any) {
+            logger.error(JSON.stringify(new LoggerException(error, req)), error);
             next(error)
         }
     }
@@ -59,7 +68,8 @@ export class UserController {
 
             res.status(200).json(new SuccessResponse(200, 'User Deleted'));
 
-        } catch (error) {
+        } catch (error: any) {
+            logger.error(JSON.stringify(new LoggerException(error, req)), error);
             next(error)
         }
     }

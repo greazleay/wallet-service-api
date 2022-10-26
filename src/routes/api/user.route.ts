@@ -6,10 +6,12 @@ import passport from 'passport';
 
 export class UserRouter {
 
-    private readonly router: CustomIRouter = Router();
-    private readonly userController = new UserController();
+    private readonly router: CustomIRouter;
+    private readonly userController: UserController;
 
     constructor() {
+        this.router = Router();
+        this.userController = new UserController();
         this.registerRoutes()
     }
 
