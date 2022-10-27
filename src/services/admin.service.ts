@@ -41,7 +41,7 @@ export class AdminService {
 
         const value = await getCacheKey(`admin/transactions/${id}`);
 
-        if (value) return { fromCache: true, user: JSON.parse(value) };
+        if (value) return { fromCache: true, transaction: JSON.parse(value) };
 
         const transaction = await this.transactionRepo.findOne({
             relations: {
@@ -227,7 +227,7 @@ export class AdminService {
 
             await setCacheKey(`admin/wallets/${id}`, wallet);
 
-            return wallet;
+            return { fromCache: false, wallet };
 
         } else {
 

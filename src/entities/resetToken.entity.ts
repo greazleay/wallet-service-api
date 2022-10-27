@@ -17,7 +17,7 @@ export class ResetToken extends AbstractEntity {
     @Column('varchar', { nullable: false })
     token: string;
 
-    @Column('timestamp without time zone', { nullable: false })
+    @Column('datetime', { nullable: false })
     expiry: Date;
 
     public async generateResetToken(): Promise<string> {
