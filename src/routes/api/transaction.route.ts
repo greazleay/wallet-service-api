@@ -1,16 +1,15 @@
-import { Router } from 'express';
 import passport from 'passport';
-import { CustomIRouter } from '@interfaces/route.interface';
+import { BaseRouter } from '../base.router';
 import { TransactionController } from '@controllers/transaction.controller';
 
 
-export class TransactionRouter {
+export class TransactionRouter extends BaseRouter {
 
-    private readonly router: CustomIRouter;
     private readonly transactionController: TransactionController
 
     constructor() {
-        this.router = Router();
+        super()
+        
         this.transactionController = new TransactionController();
         this.registerRoutes()
     }
@@ -18,7 +17,7 @@ export class TransactionRouter {
     private registerRoutes() {
 
         this.router.use(passport.authenticate('jwt', { session: false }));
-        
+
         this.router.get(
             '/wallet',
             this.transactionController.getAllOnWalletByUser
@@ -41,7 +40,4 @@ export class TransactionRouter {
 
     };
 
-    public getRoutes() {
-        return this.router;
-    }
 }

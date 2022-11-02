@@ -1,17 +1,15 @@
-import { Router } from 'express';
-import { CustomIRouter } from '@interfaces/route.interface';
-import { AdminController } from '@controllers/admin.controller';
 import passport from 'passport';
+import { BaseRouter } from '../base.router';
+import { AdminController } from '@controllers/admin.controller';
 import { Authorize } from '@/middlewares/authorize';
 
 
-export class AdminRouter {
+export class AdminRouter extends BaseRouter {
 
-    private readonly router: CustomIRouter;
     private readonly adminController: AdminController;
 
     constructor() {
-        this.router = Router();
+        super()
         this.adminController = new AdminController();
         this.registerRoutes()
     }
@@ -55,7 +53,4 @@ export class AdminRouter {
 
     };
 
-    public getRoutes() {
-        return this.router;
-    }
 }

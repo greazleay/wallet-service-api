@@ -1,16 +1,15 @@
-import { Router } from 'express';
-import { CustomIRouter } from '@interfaces/route.interface';
-import { AuthController } from '@controllers/auth.controller';
 import passport from 'passport';
+import { BaseRouter } from '../base.router';
+import { AuthController } from '@controllers/auth.controller';
+import { Route } from '@decorators/generic.decorator';
 
 
-export class AuthRouter {
+export class AuthRouter extends BaseRouter {
 
-    private readonly router: CustomIRouter;
     private readonly authController: AuthController;
 
     constructor() {
-        this.router = Router();
+        super()
         this.authController = new AuthController();
         this.registerRoutes();
     }
@@ -40,7 +39,4 @@ export class AuthRouter {
 
     };
 
-    public getRoutes() {
-        return this.router;
-    }
 }

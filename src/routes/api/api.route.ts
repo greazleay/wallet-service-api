@@ -1,4 +1,5 @@
-import { Request, Response, Router } from 'express';
+import { Request, Response } from 'express';
+import { BaseRouter } from '../base.router';
 import { AdminRouter } from './admin.route';
 import { AuthRouter } from '@routes/api/auth.route';
 import { TransactionRouter } from '@routes/api/transaction.route';
@@ -6,12 +7,10 @@ import { UserRouter } from '@routes/api/user.route';
 import { WalletRouter } from '@/routes/api/wallet.route';
 
 
-export class ApiRouter {
-
-    private readonly router: Router;
+export class ApiRouter extends BaseRouter {
 
     constructor() {
-        this.router = Router()
+        super()
         this.registerRoutes()
     }
 
@@ -28,7 +27,4 @@ export class ApiRouter {
         this.router.use('/wallets', new WalletRouter().getRoutes());
     };
 
-    public getRoutes() {
-        return this.router;
-    }
 }

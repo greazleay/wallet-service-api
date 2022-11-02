@@ -1,16 +1,15 @@
-import { Router } from 'express';
-import { CustomIRouter } from '@interfaces/route.interface';
-import { UserController } from '@controllers/user.controller';
 import passport from 'passport';
+import { BaseRouter } from '../base.router';
+import { UserController } from '@controllers/user.controller';
 
 
-export class UserRouter {
+export class UserRouter extends BaseRouter {
 
-    private readonly router: CustomIRouter;
     private readonly userController: UserController;
 
     constructor() {
-        this.router = Router();
+        super();
+        
         this.userController = new UserController();
         this.registerRoutes()
     }
@@ -42,7 +41,4 @@ export class UserRouter {
 
     };
 
-    public getRoutes() {
-        return this.router;
-    }
 }

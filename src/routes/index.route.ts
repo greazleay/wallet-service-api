@@ -1,19 +1,16 @@
-import { Request, Response, Router } from 'express';
+import { Request, Response } from 'express';
+import { BaseRouter } from './base.router';
 
-export class IndexRouter {
 
-    private router: Router;
+export class IndexRouter extends BaseRouter {
 
     constructor() {
-        this.router = Router();
+        super();
+
         this.registerRoutes();
     }
 
     private registerRoutes() {
         this.router.get('/', (req: Request, res: Response) => res.redirect('/v1'));
-    }
-
-    public getRoutes() {
-        return this.router;
     }
 }
