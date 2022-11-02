@@ -33,6 +33,7 @@
             "@/*": ["*"],
             "@config/*": ["config/*"],
             "@controllers/*": ["controllers/*"],
+            "@decorators/*": ["decorators/*"],
             "@dtos/*": ["dtos/*"],
             "@entities/*": ["entities/*"],
             "@exceptions/*": ["exceptions/*"],

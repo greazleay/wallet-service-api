@@ -11,8 +11,10 @@ import { RequestWithUser } from '@interfaces/route.interface';
 import { SuccessResponse } from '@helpers/successResponse';
 import { LoggerException } from '@exceptions/common.exceptions';
 import { logger } from '@helpers/logger';
+import { Controller } from '@decorators/generic.decorator';
 
 
+@Controller()
 export class TransactionController {
 
     private readonly transactionService: TransactionService;

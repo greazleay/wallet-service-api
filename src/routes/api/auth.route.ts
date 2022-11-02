@@ -3,6 +3,7 @@ import { CustomIRouter } from '@interfaces/route.interface';
 import { AuthController } from '@controllers/auth.controller';
 import passport from 'passport';
 
+
 export class AuthRouter {
 
     private readonly router: CustomIRouter;

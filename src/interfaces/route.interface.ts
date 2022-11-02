@@ -1,6 +1,7 @@
 import { User } from '@entities/user.entity';
 import { IRouter, Request } from 'express';
 
+
 export interface RequestWithUser extends Request {
     user: User;
 }

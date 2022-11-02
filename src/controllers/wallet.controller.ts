@@ -10,10 +10,12 @@ import {
     WithdrawFundsDto
 } from '@/dtos/wallet.dto';
 import { SuccessResponse } from '@helpers/successResponse';
-import { LoggerException } from '@/exceptions/common.exceptions';
-import { logger } from '@/helpers/logger';
+import { LoggerException } from '@exceptions/common.exceptions';
+import { logger } from '@helpers/logger';
+import { Controller } from '@decorators/generic.decorator';
 
 
+@Controller()
 export class WalletController {
 
     private readonly walletService: WalletService;

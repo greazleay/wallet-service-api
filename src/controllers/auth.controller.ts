@@ -1,13 +1,20 @@
 import { NextFunction, Request, Response } from 'express';
 import { AuthService } from '@services/auth.service';
 import { validateRequest } from '@helpers/validateRequest';
-import { ChangePasswordDto, LoginUserDto, ResetPasswordDto, ValidEmailDto } from '@dtos/auth.dto';
+import {
+    ChangePasswordDto,
+    LoginUserDto,
+    ResetPasswordDto,
+    ValidEmailDto
+} from '@dtos/auth.dto';
 import { SuccessResponse } from '@helpers/successResponse';
 import { logger } from '@helpers/logger';
 import { LoggerException } from '@exceptions/common.exceptions';
-import { RequestWithUser } from '@/interfaces/route.interface';
+import { RequestWithUser } from '@interfaces/route.interface';
+import { Controller } from '@decorators/generic.decorator';
 
 
+@Controller()
 export class AuthController {
 
     public readonly authService: AuthService;

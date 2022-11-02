@@ -6,8 +6,10 @@ import { EntityIdDto } from '@dtos/common.dto';
 import { pageOptions, paginate } from '@helpers/paginate';
 import { logger } from '@helpers/logger';
 import { LoggerException } from '@exceptions/common.exceptions';
+import { Controller } from '@decorators/generic.decorator';
 
 
+@Controller()
 export class AdminController {
 
     private readonly adminService: AdminService;
