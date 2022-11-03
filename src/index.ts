@@ -8,11 +8,14 @@ import { logger } from '@helpers/logger';
 const PORT = ENV.PORT || 4000;
 
 AppDataSource.initialize()
-    .then(async () => {
+    .then(async (connection) => {
 
         (new App().getApp()).listen(PORT, (): void => {
             logger.info(`listening on port ${PORT}`);
         });
+
+        // To fix ER_CON_COUNT_ERROR: Too many connections MySQL Error
+        //await connection.destroy()
 
     }).then(async () => {
 

@@ -20,7 +20,10 @@ export const AppDataSource = new DataSource({
         rejectUnauthorized: false
     },
     connectTimeout: 30000,
-    timezone: 'Z'
+    timezone: 'Z',
+    extra: {
+        connectionLimit: 1000
+    }
 });
 
 export const entityManager = AppDataSource.manager;

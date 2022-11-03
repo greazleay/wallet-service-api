@@ -14,7 +14,7 @@ export class UserRouter extends BaseRouter {
         this.registerRoutes()
     }
 
-    private registerRoutes() {
+    protected registerRoutes() {
 
         this.router.post(
             '/register',

@@ -14,7 +14,7 @@ export class TransactionRouter extends BaseRouter {
         this.registerRoutes()
     }
 
-    private registerRoutes() {
+    protected registerRoutes() {
 
         this.router.use(passport.authenticate('jwt', { session: false }));
 

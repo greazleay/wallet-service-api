@@ -14,7 +14,7 @@ export class ApiRouter extends BaseRouter {
         this.registerRoutes()
     }
 
-    private registerRoutes() {
+    protected registerRoutes() {
 
         this.router.get('/', (req: Request, res: Response) => res.json({
             message: `HELLO VISITOR, THANK YOU FOR VISITING`

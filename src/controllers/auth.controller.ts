@@ -17,18 +17,18 @@ import { Controller } from '@decorators/generic.decorator';
 @Controller()
 export class AuthController {
 
-    public readonly authService: AuthService;
+    protected readonly authService: AuthService;
 
     constructor() {
-        this.authService = new AuthService()
+        this.authService = AuthController.bind(new AuthService())
     }
 
-    public loginUser = async (req: Request, res: Response, next: NextFunction) => {
+    public async loginUser(req: Request, res: Response, next: NextFunction) {
         try {
 
             const loginUserDto = await validateRequest(LoginUserDto, req.body);
 
-            const responseData = await this.authService.login(loginUserDto);
+            const responseData = await this['authService'].login(loginUserDto);
 
             res.status(200).json(new SuccessResponse(200, 'Login Successful', responseData));
 

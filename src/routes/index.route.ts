@@ -10,7 +10,11 @@ export class IndexRouter extends BaseRouter {
         this.registerRoutes();
     }
 
-    private registerRoutes() {
-        this.router.get('/', (req: Request, res: Response) => res.redirect('/v1'));
+    private index(req: Request, res: Response) {
+        res.redirect('/v1')
+    }
+
+    protected registerRoutes() {
+        this.router.get('/', this.index);
     }
 }
