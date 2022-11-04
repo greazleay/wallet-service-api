@@ -23,7 +23,7 @@ export class AuthController {
         this.authService = AuthController.bind(new AuthService())
     }
 
-    public async loginUser(req: Request, res: Response, next: NextFunction) {
+    public loginUser = async (req: Request, res: Response, next: NextFunction) => {
         try {
 
             const loginUserDto = await validateRequest(LoginUserDto, req.body);
