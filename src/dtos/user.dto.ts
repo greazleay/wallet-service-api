@@ -23,7 +23,7 @@ export class CreateUserDto {
 
     @IsEmail()
     @IsNotEmpty()
-    readonly email: string | undefined;
+    readonly email: string;
 
     @MinLength(6, { message: 'Password must be at least 6 characters long' })
     @IsAlphanumeric()

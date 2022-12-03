@@ -1,7 +1,7 @@
 import { CreateUserDto, UpdateUserDto } from '@dtos/user.dto';
 import { userRepository } from '@/data-source';
 import { ConflictException, NotFoundException } from '@exceptions/common.exceptions';
-import { User } from '@/entities/user.entity';
+import { User } from '@entities/user.entity';
 
 export class UserService {
 
@@ -37,7 +37,7 @@ export class UserService {
             return updatedUser
 
         } else {
-            
+
             throw new NotFoundException(`User with id: ${id} not found`)
         }
     }
@@ -53,7 +53,7 @@ export class UserService {
             return true
 
         } else {
-            
+
             throw new NotFoundException(`User with id: ${id} not found`)
         }
     }

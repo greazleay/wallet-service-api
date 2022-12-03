@@ -1,6 +1,6 @@
 import { userRepository, resetTokenRepository } from '@/data-source';
 import { ResetToken } from '@entities/resetToken.entity';
-import { NotFoundException, UnAuthorizedException } from '@/exceptions/common.exceptions';
+import { UnAuthorizedException } from '@exceptions/common.exceptions';
 import { ChangePasswordDto, LoginUserDto, ResetPasswordDto } from '@dtos/auth.dto';
 import { frontEndUrl } from '@config/constants';
 import { sendMail } from '@helpers/email/sendMail';

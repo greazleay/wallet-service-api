@@ -31,3 +31,12 @@ export const resetTokenRepository = AppDataSource.getRepository(ResetToken);
 export const transactionRepository = AppDataSource.getRepository(Transaction);
 export const userRepository = AppDataSource.getRepository(User);
 export const walletRepository = AppDataSource.getRepository(Wallet);
+
+// Experimental feature
+export const TestDataSource = new DataSource({
+    type: 'better-sqlite3',
+    database: ':memory:',
+    entities: [ResetToken, Transaction, User, Wallet],
+    synchronize: true,
+    logging: false
+})

@@ -20,7 +20,7 @@ export class AuthController {
     protected readonly authService: AuthService;
 
     constructor() {
-        this.authService = AuthController.bind(new AuthService())
+        this.authService = new AuthService();
     }
 
     public loginUser = async (req: Request, res: Response, next: NextFunction) => {
@@ -28,7 +28,7 @@ export class AuthController {
 
             const loginUserDto = await validateRequest(LoginUserDto, req.body);
 
-            const responseData = await this['authService'].login(loginUserDto);
+            const responseData = await this.authService.login(loginUserDto);
 
             res.status(200).json(new SuccessResponse(200, 'Login Successful', responseData));
 

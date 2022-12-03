@@ -7,6 +7,7 @@ export default async (): Promise<Config.InitialOptions> => {
             "@/(.*)": "<rootDir>/src/$1",
             "@config/(.*)": "<rootDir>/src/config/$1",
             "@controllers/(.*)": "<rootDir>/src/controllers/$1",
+            "@decorators/(.*)": "<rootDir>/src/decorators/$1",
             "@dtos/(.*)": "<rootDir>/src/dtos/$1",
             "@entities/(.*)": "<rootDir>/src/entities/$1",
             "@exceptions/(.*)": "<rootDir>/src/exceptions/$1",

@@ -1,12 +1,21 @@
 import { createClient, RedisClientType } from 'redis';
 import { ENV } from '@config/configuration';
+import { logger } from '@helpers/logger';
 
-
-export const redisClient: RedisClientType = createClient({
+const redisClient: RedisClientType = createClient({
     url: ENV.REDIS_HOST,
     username: ENV.REDIS_USERNAME,
     password: ENV.REDIS_PASSWORD
 });
+
+export const connectRedis = async () => {
+
+    redisClient.on('connect', () => logger.info('Redis Client Connected'))
+
+    redisClient.on('error', (err) => logger.error('Redis Client Error', err));
+
+    await redisClient.connect()
+}
 
 export const getCacheKey = async (key: string) => {
     return await redisClient.get(key);
