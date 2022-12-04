@@ -8,7 +8,7 @@ import { ENV } from '@config/configuration';
 const app = new App().getApp();
 let server: Server;
 
-describe('Authentication Routes', () => {
+describe.skip('Authentication Routes', () => {
 
     beforeAll(async () => {
 

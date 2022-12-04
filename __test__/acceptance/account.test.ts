@@ -9,7 +9,7 @@ const app = new App().getApp();
 let server: Server;
 let accessToken: string = '';
 
-describe('Accounts Routes', () => {
+describe.skip('Accounts Routes', () => {
 
     beforeAll(async () => {
 

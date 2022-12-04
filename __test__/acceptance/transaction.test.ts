@@ -10,7 +10,7 @@ let server: Server;
 let accessToken: string = ''
 
 
-describe('Transaction Routes', () => {
+describe.skip('Transaction Routes', () => {
 
     beforeAll(async () => {
 

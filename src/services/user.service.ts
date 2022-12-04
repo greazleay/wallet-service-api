@@ -29,7 +29,7 @@ export class UserService {
         const userToUpdate = await this.userRepo.findOneBy({ id });
 
         if (userToUpdate) {
-            
+
             const updatedUser = Object.assign(userToUpdate, updateUserDto)
 
             await this.userRepo.save(updatedUser)
@@ -56,6 +56,11 @@ export class UserService {
 
             throw new NotFoundException(`User with id: ${id} not found`)
         }
+    }
+
+    public async findUserByEmail(email: string): Promise<User> {
+
+        return this.userRepo.findOneBy({ email })
     }
 
 }

@@ -1,133 +1,73 @@
-import request from 'supertest';
-import { Server } from 'http';
-import { AppDataSource } from '@/data-source';
-import { App } from '@/app';
-import { ENV } from '@config/configuration';
+import { DataSource } from 'typeorm';   // IMPORTED FOR MOCKING, DO NOT REMOVE
+import { UserService } from '@/services/user.service';
+import { newTestUser, testUser } from '../__mocks__/user.mock'
+import { CreateUserDto } from '@dtos/user.dto';
 
+jest.mock('typeorm', () => {
 
-const app = new App().getApp();
-let server: Server;
-let accessToken: string = ''
+    const originalModule = jest.requireActual<typeof import('typeorm')>('typeorm');
 
-
-describe('User Routes', () => {
-
-    beforeAll(async () => {
-
-        await AppDataSource.initialize();
-
-        server = app.listen(ENV.PORT);
-
-        // Fix for EADDRINUSE error during tests
-        server.on('error', (e: NodeJS.ErrnoException) => {
-
-            if (e.code === 'EADDRINUSE') {
-
-                setTimeout(() => {
-                    server.close();
-                    server.listen(ENV.PORT);
-                }, 3000);
-
+    return {
+        ...originalModule,
+        DataSource: jest.fn().mockImplementation(() => {
+            return {
+                BaseEntity: jest.fn(),
+                getRepository: jest.fn().mockImplementation(() => {
+                    return {
+                        findOneBy: jest.fn().mockImplementation(() => testUser),
+                        save: jest.fn().mockImplementation(() => newTestUser)
+                    }
+                })
             }
-        });
-
-        accessToken = (await request(app)
-            .post('/v1/auth/login')
-            .send({
-                email: '<valid-email>',
-                password: '<valid-password>'
-            })
-            .retry(2)
-        ).body.data;
-
-    });
-
-    afterAll(async () => {
-
-        await AppDataSource.destroy();
-
-        server.close()
-
-    })
-
-    describe('GET /users', () => {
-
-        it('Should Return All Users and data in Response Body must be an Array', async () => {
-
-            const response = await request(app)
-                .get('/v1/users')
-                .auth(accessToken, { type: 'bearer' });
-
-            expect(response.status).toEqual(200);
-
-            expect(response.body.status).toEqual('success');
-
-            expect(response.body.statusCode).toEqual(200);
-
-            expect(Array.isArray(response.body.data)).toBe(true);
-
-            expect(response.body.data.length).toBeGreaterThan(0)
-
-        });
-
-        it('Should return an UnAuthorized Error Response if an invalid token is passed with the request', async () => {
-
-            const response = await request(app)
-                .get('/v1/users')
-                .auth('invalidToken', { type: 'bearer' });
-
-            expect(response.status).toEqual(401);
-
-            expect(response.text).toEqual('Unauthorized');
-
-        });
-
-    })
-
-    describe('POST /users/register', () => {
-
-        it('Should return a validation error if request body is empty', async () => {
-
-            const res = await request(app)
-                .post('/v1/users/register')
-                .send();
-
-            expect(res.status).toBe(400);
-
-            expect(res.body.errors).not.toBeNull();
-
-        });
-    })
-
-    describe('GET /users/userinfo', () => {
-
-        it('Should return an unauthorized error if an invalid token is passed with the request', async () => {
-
-            const response = await request(app)
-                .get('/v1/users/userinfo')
-                .auth('invalidToken', { type: 'bearer' });
-
-            expect(response.status).toEqual(401);
-
-            expect(response.text).toEqual('Unauthorized');
-
-        });
-
-        it('Should return the user info if a valid token is passed with the request', async () => {
-
-            const response = await request(app)
-                .get('/v1/users/userinfo')
-                .auth(accessToken, { type: 'bearer' });
-
-            expect(response.status).toEqual(200);
-
-            expect(response.body.status).toEqual('success');
-
-            expect(response.body.statusCode).toEqual(200);
-
-            expect(response.body.data).toHaveProperty('email')
-
         })
-    });
+    }
+});
+
+describe('User Service', () => {
+
+    const service = new UserService();
+
+    beforeEach(() => {
+        jest.clearAllMocks()
+    })
+
+    describe.skip('find user by email', () => {
+
+        it('should return a user matching the specified email', async () => {
+
+            const result = await service.findUserByEmail('test@test.com');
+
+            expect(result).toStrictEqual(testUser)
+        })
+    })
+
+    describe('create new user', () => {
+
+        it.only('should create a new user', async () => {
+
+            const createUserDto: CreateUserDto = {
+                email: 'test@example.com',
+                password: 'password123',
+                fullName: 'John Doe'
+            }
+
+            expect(service.create(createUserDto))
+                // .resolves
+                .toMatchObject({})
+        })
+
+        it('should throw a conflict error if the user already exists', async () => {
+
+            const createUserDto: CreateUserDto = {
+                email: 'test@test.com',
+                password: 'password123',
+                fullName: 'John Doe'
+            }
+
+            await expect(service.create(createUserDto))
+                .rejects
+                .toMatchObject({})
+        })
+    })
 
 })
