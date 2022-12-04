@@ -14,7 +14,7 @@ export class UserService {
         const userExists = await this.userRepo.findOneBy({ email });
 
         if (userExists) {
-            throw new ConflictException(`User with email ${email} already exists on the server`)
+            throw new ConflictException(`User with email: ${email} already exists`)
         }
 
         const newUser = this.userRepo.create(createUserDto);

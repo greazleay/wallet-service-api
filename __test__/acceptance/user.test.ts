@@ -31,7 +31,7 @@ describe('User Service', () => {
         jest.clearAllMocks()
     })
 
-    describe.skip('find user by email', () => {
+    describe('find user by email', () => {
 
         it('should return a user matching the specified email', async () => {
 
@@ -51,9 +51,9 @@ describe('User Service', () => {
                 fullName: 'John Doe'
             }
 
-            expect(service.create(createUserDto))
-                // .resolves
-                .toMatchObject({})
+            const result = await service.create(createUserDto)
+
+            expect(result).toMatchObject(newTestUser)
         })
 
         it('should throw a conflict error if the user already exists', async () => {
