@@ -14,7 +14,10 @@ jest.mock('typeorm', () => {
                 BaseEntity: jest.fn(),
                 getRepository: jest.fn().mockImplementation(() => {
                     return {
-                        findOneBy: jest.fn().mockImplementation(() => testUser),
+                        findOneBy: jest.fn().mockImplementation((inputObj: { email: string }) => {
+                            return inputObj.email === testUser.email ? testUser : null
+                        }),
+                        create: jest.fn().mockImplementation(() => newTestUser),
                         save: jest.fn().mockImplementation(() => newTestUser)
                     }
                 })
@@ -27,7 +30,7 @@ describe('User Service', () => {
 
     const service = new UserService();
 
-    beforeEach(() => {
+    afterEach(() => {
         jest.clearAllMocks()
     })
 
@@ -35,7 +38,7 @@ describe('User Service', () => {
 
         it('should return a user matching the specified email', async () => {
 
-            const result = await service.findUserByEmail('test@test.com');
+            const result = await service.findUserByEmail('test@example.com');
 
             expect(result).toStrictEqual(testUser)
         })
@@ -43,30 +46,30 @@ describe('User Service', () => {
 
     describe('create new user', () => {
 
-        it.only('should create a new user', async () => {
+        it('should create a new user', async () => {
 
             const createUserDto: CreateUserDto = {
-                email: 'test@example.com',
+                email: 'newuser@example.com',
                 password: 'password123',
                 fullName: 'John Doe'
-            }
+            };
 
-            const result = await service.create(createUserDto)
+            const result = await service.create(createUserDto);
 
-            expect(result).toMatchObject(newTestUser)
+            expect(result).toMatchObject(newTestUser);
         })
 
-        it('should throw a conflict error if the user already exists', async () => {
+        it('should throw a conflict error if a user with similar email address already exists', async () => {
 
             const createUserDto: CreateUserDto = {
                 email: 'test@test.com',
                 password: 'password123',
                 fullName: 'John Doe'
-            }
+            };
 
             await expect(service.create(createUserDto))
                 .rejects
-                .toMatchObject({})
+                .toMatchObject({});
         })
     })
 
